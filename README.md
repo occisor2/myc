@@ -6,20 +6,20 @@ Myc is a small C compiler I am writing to learn more about compilers.
 
 This project is built with CMake.
 
-'''
+```
 mkdir build
 cd build
 cmake ..
 make
-'''
+```
 
 ## Running
 
 Right now the compiler just works on one source file.
 
-'''
+```
 ./myc [code file]
-'''
+```
 
 ## Tests
 
