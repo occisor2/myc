@@ -1,6 +1,9 @@
 # myc
 
 Myc is a small C compiler I am writing to learn more about compilers.
+I have gathered information from a few sources, but my main guide for
+this project is this project on Github:
+https://github.com/DoctorWkt/acwj
 
 ## Build Instructions
 
