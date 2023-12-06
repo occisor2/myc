@@ -1,1 +1,2 @@
-((auto-mode-alist . (("\\.h\\'" . c++-mode))))
+((nil . ((compile-command . "cd build && make")))
+ (auto-mode-alist . (("\\.h\\'" . c++-mode))))
