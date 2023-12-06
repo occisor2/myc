@@ -15,11 +15,13 @@ set(MYC_SOURCES
   main.cpp
   Token.cpp
   Scanner.cpp
+  AST.cpp
+  Parser.cpp
 )
 list(TRANSFORM MYC_SOURCES PREPEND "src/")
 
 add_executable(myc ${MYC_SOURCES})
-target_compile_options(myc PRIVATE -Wall -Wextra -pedantic -pipe)
+target_compile_options(myc PRIVATE -Wall -Wextra -pedantic -pipe -Og -g)
 
 # Setup GTest
 include(FetchContent)

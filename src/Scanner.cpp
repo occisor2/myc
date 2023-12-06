@@ -26,7 +26,7 @@ std::vector<Token> Scanner::scan()
 	
 	while (skipWhitespace())
 	{	
-		Token tok;	
+		Token tok;
 		char c = code.get();
 		
 		switch (c)
@@ -57,6 +57,7 @@ std::vector<Token> Scanner::scan()
 			throw ScanError("unrecognized token", line);
 		}
 
+		tok.line = line;
 		tokens.push_back(tok);
 	}
 

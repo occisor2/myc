@@ -22,4 +22,5 @@ public:
 	
 	Type type{};
 	int intLit{};
+	unsigned int line{};
 };
