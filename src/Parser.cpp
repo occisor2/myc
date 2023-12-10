@@ -54,49 +54,14 @@ bool Parser::empty() const
 	return pos >= tokens.size();
 }
 
-void Parser::parse()
+AST Parser::parse()
 {
 	if (empty())
-		return;
+		return AST(nullptr);
 	
 	ast.root = binExp(0);
 
-	printAST();
-}
-
-void Parser::printAST()
-{
-	if (ast.root)
-	{
-		auto result = interpret(ast.root.get());
-		std::cout << result << std::endl;
-	}
-}
-
-int Parser::interpret(const Node* node)
-{
-	int leftVal{}, rightVal{};
-	
-	if (node->left)
-		leftVal = interpret(node->left.get());
-	if (node->right)
-		rightVal = interpret(node->right.get());
-
-	switch (node->type)
-	{
-	case AST::Type::Add:
-		return leftVal + rightVal;
-	case AST::Type::Subtract:
-		return leftVal - rightVal;
-	case AST::Type::Multiply:
-		return leftVal * rightVal;
-	case AST::Type::Divide:
-		return leftVal / rightVal;
-	case AST::Type::IntLit:
-		return node->intLit;
-	default:
-		throw ParseError("unknown operator", node->line);
-	}
+	return std::move(ast);
 }
 
 std::unique_ptr<Node> Parser::primary()

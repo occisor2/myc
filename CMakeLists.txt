@@ -17,6 +17,8 @@ set(MYC_SOURCES
   Scanner.cpp
   AST.cpp
   Parser.cpp
+  Generator.cpp
+  RegisterAllocator.cpp
 )
 list(TRANSFORM MYC_SOURCES PREPEND "src/")
 
