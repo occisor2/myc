@@ -41,11 +41,11 @@ void compile(const fs::path& filePath)
 		// Generate the assembly code.
 		Generator gen(ast);
 
-		std::ofstream os("./out.as");
+		std::ofstream os("./out.s");
 		gen.generate(os);
 		os.close();
 		// Assemble and link
-		assemble("./out.as");
+		assemble("./out.s");
 		link("./out.o");
 	}
 	catch (ScanError& e)
