@@ -2,7 +2,6 @@
 
 #include "AST.h"
 #include "Token.h"
-#include "Reader.h"
 #include <memory>
 #include <stdexcept>
 #include <vector>
@@ -27,11 +26,20 @@ public:
 	void parse();
 
 private:
-	Reader<std::vector<Token>::const_iterator> reader;
+	const std::vector<Token>& tokens;
+	std::vector<Token>::size_type pos;
 	AST ast;
 
+	Token consume();
+	const Token& peek() const;
+	void next();
+	bool empty() const;
+	
 	void printAST();
 	int interpret(const Node* node);
+	
 	std::unique_ptr<Node> primary();
-	std::unique_ptr<Node> binExp();
+	std::unique_ptr<Node> binExp(int prevPrec);
+
+	std::pair<int, int> infixPrecedence(const Token& t) const;
 };

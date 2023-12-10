@@ -9,11 +9,11 @@ class AST
 public:
 	enum class Type
 	{
+		IntLit,
 		Add,
 		Subtract,
 		Multiply,
 		Divide,
-		IntLit
 	};
 
 	class Node
@@ -21,7 +21,7 @@ public:
 	public:
 		Type type;
 		int intLit{};
-		unsigned int line;
+		unsigned int line{};
 		std::unique_ptr<Node> left;
 		std::unique_ptr<Node> right;
 
@@ -31,8 +31,7 @@ public:
 		Node(Type type, unsigned int line, std::unique_ptr<Node> left = nullptr, std::unique_ptr<Node> right = nullptr);
 		Node(Token::Type type, unsigned int line, std::unique_ptr<Node> left = nullptr, std::unique_ptr<Node> right = nullptr);
 
-	private:
-		Type tokenToNodeType(Token::Type t) const;
+		static Type tokenToNodeType(Token::Type t);
 	};
 
 	std::unique_ptr<Node> root;

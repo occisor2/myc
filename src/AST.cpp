@@ -10,7 +10,7 @@ Node::Node(Type type, int intLit, unsigned int line)
 {}
 
 Node::Node(Token::Type type, int intLit, unsigned int line)
-	: Node(tokenToNodeType(type), line, intLit)
+	: Node(tokenToNodeType(type), intLit, line)
 {}
 
 Node::Node(Type type, unsigned int line, std::unique_ptr<Node> left, std::unique_ptr<Node> right)
@@ -21,7 +21,7 @@ Node::Node(Token::Type type, unsigned int line, std::unique_ptr<Node> left, std:
 	: Node::Node(tokenToNodeType(type), line, std::move(left), std::move(right))
 {}
 
-AST::Type Node::tokenToNodeType(Token::Type t) const
+AST::Type Node::tokenToNodeType(Token::Type t)
 {
 	Type convert{};
 

@@ -1,9 +1,9 @@
 #include "Parser.h"
 #include "AST.h"
-#include "Reader.h"
 #include "Token.h"
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 using Node = AST::Node;
 
@@ -17,15 +17,49 @@ const char* ParseError::what() const noexcept
 }
 
 Parser::Parser(const std::vector<Token>& tokens)
-	: reader(tokens.begin(), tokens.end())
+	: tokens(tokens), pos(0)
 {}
+
+Token Parser::consume()
+{
+	if (empty())
+	{
+		// Get the position of the last token to get the line
+		auto line = pos == 0 ? 0 : tokens[pos - 1].line;
+		throw ParseError("unexpected EOF", line);
+	}
+	
+	return tokens[pos++];
+}
+
+const Token& Parser::peek() const
+{
+	if (empty())
+	{
+		// Get the position of the last token to get the line
+		auto line = pos == 0 ? 0 : tokens[pos - 1].line;
+		throw ParseError("unexpected EOF", line);
+	}
+	
+	return tokens[pos];
+}
+
+void Parser::next()
+{
+	pos++;
+}
+
+bool Parser::empty() const
+{
+	return pos >= tokens.size();
+}
 
 void Parser::parse()
 {
-	if (reader.isEmpty())
+	if (empty())
 		return;
 	
-	ast.root = binExp();
+	ast.root = binExp(0);
 
 	printAST();
 }
@@ -66,30 +100,54 @@ int Parser::interpret(const Node* node)
 }
 
 std::unique_ptr<Node> Parser::primary()
-{
-	auto tok = reader.consume();
+{	
+	auto tok = consume();
 
 	switch (tok.type)
 	{
 	case Token::Type::IntLit:
-		return std::make_unique<Node>(tok.type, tok.intLit);
+		return std::make_unique<Node>(tok.type, tok.intLit, tok.line);
 	default:
-		throw ParseError("syntax error", tok.line);
+		throw ParseError("expected literal", tok.line);
 	}
 }
 
-std::unique_ptr<Node> Parser::binExp()
+std::unique_ptr<Node> Parser::binExp(int prevPrec)
 {
 	auto left = primary();
+	
+	while (not empty())
+	{
+		auto op = peek();
+		if (op.type == Token::Type::IntLit)
+			throw ParseError("expected operator", op.line);
 
-	// If no more tokens, just return the left node.
-	if (reader.isEmpty())
-		return left;
+		auto [lbp, rbp] = infixPrecedence(op);
+		if (lbp < prevPrec)
+			break;
 
-	// Read in the operator token.
-	auto op = reader.consume();
+		next();
+		auto right  = binExp(rbp);
 
-	auto right = binExp();
+		left = std::make_unique<Node>(op.type, op.line, std::move(left), std::move(right));
+	}
 
-	return std::make_unique<Node>(op.type, op.line, std::move(left), std::move(right));
+	return left;
+}
+
+std::pair<int, int> Parser::infixPrecedence(const Token& t) const
+{
+	using Type = Token::Type;
+	
+	switch (t.type)
+	{
+	case Type::Plus:
+	case Type::Minus:
+		return std::make_pair(1, 2);
+	case Type::Star:
+	case Type::Slash:
+		return std::make_pair(3, 4);
+	default:
+		throw ParseError("bad operator", t.line);
+	}
 }
