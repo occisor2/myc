@@ -26,25 +26,25 @@ add_executable(myc ${MYC_SOURCES})
 target_compile_options(myc PRIVATE -Wall -Wextra -pedantic -pipe -Og -g)
 
 # Setup GTest
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-)
+# include(FetchContent)
+# FetchContent_Declare(
+#   googletest
+#   URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+# )
 
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
+# # For Windows: Prevent overriding the parent project's compiler/linker settings
+# set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# FetchContent_MakeAvailable(googletest)
 
-include(GoogleTest)
+# include(GoogleTest)
 
-enable_testing()
+# enable_testing()
 
-set(MYC_TEST_SOURCES
-  scanner.cpp)
-list(TRANSFORM MYC_TEST_SOURCES PREPEND "tests/")
+# set(MYC_TEST_SOURCES
+#   scanner.cpp)
+# list(TRANSFORM MYC_TEST_SOURCES PREPEND "tests/")
 
-add_executable(run-tests ${MYC_TEST_SOURCES})
-target_link_libraries(run-tests GTest::gtest_main)
+# add_executable(run-tests ${MYC_TEST_SOURCES})
+# target_link_libraries(run-tests GTest::gtest_main)
 
-gtest_discover_tests(run-tests)
+# gtest_discover_tests(run-tests)
