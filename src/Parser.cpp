@@ -1,6 +1,7 @@
 #include "Parser.h"
 #include "AST.h"
 #include "Token.h"
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -16,49 +17,12 @@ const char* ParseError::what() const noexcept
 	return std::runtime_error::what();
 }
 
-Parser::Parser(const std::vector<Token>& tokens)
-	: tokens(tokens), pos(0)
+Parser::Parser(Scanner& scanner)
+	: scanner(scanner)
 {}
-
-Token Parser::consume()
-{
-	if (empty())
-	{
-		// Get the position of the last token to get the line
-		auto line = pos == 0 ? 0 : tokens[pos - 1].line;
-		throw ParseError("unexpected EOF", line);
-	}
-	
-	return tokens[pos++];
-}
-
-const Token& Parser::peek() const
-{
-	if (empty())
-	{
-		// Get the position of the last token to get the line
-		auto line = pos == 0 ? 0 : tokens[pos - 1].line;
-		throw ParseError("unexpected EOF", line);
-	}
-	
-	return tokens[pos];
-}
-
-void Parser::next()
-{
-	pos++;
-}
-
-bool Parser::empty() const
-{
-	return pos >= tokens.size();
-}
 
 AST Parser::parse()
 {
-	if (empty())
-		return AST(nullptr);
-	
 	ast.root = binExp(0);
 
 	return std::move(ast);
@@ -66,35 +30,41 @@ AST Parser::parse()
 
 std::unique_ptr<Node> Parser::primary()
 {	
-	auto tok = consume();
+	auto tok = scanner.scan();
 
 	switch (tok.type)
 	{
 	case Token::Type::IntLit:
-		return std::make_unique<Node>(tok.type, tok.intLit, tok.line);
+		return std::make_unique<Node>(tok.type, tok.intLit);
 	default:
-		throw ParseError("expected literal", tok.line);
+		throw ParseError("expected literal", scanner.getLine());
 	}
 }
 
 std::unique_ptr<Node> Parser::binExp(int prevPrec)
 {
+	// Scan in the left literal
 	auto left = primary();
 	
-	while (not empty())
+	// Scan the operator token
+	scanner.scan();
+	
+	while (true)
 	{
-		auto op = peek();
+		auto op = scanner.peek();
+		if (op.type == Token::Type::Eof)
+			break;
+		
 		if (op.type == Token::Type::IntLit)
-			throw ParseError("expected operator", op.line);
+			throw ParseError("expected operator", scanner.getLine());
 
 		auto [lbp, rbp] = infixPrecedence(op);
 		if (lbp < prevPrec)
 			break;
 
-		next();
 		auto right  = binExp(rbp);
 
-		left = std::make_unique<Node>(op.type, op.line, std::move(left), std::move(right));
+		left = std::make_unique<Node>(op.type, std::move(left), std::move(right));
 	}
 
 	return left;
@@ -113,6 +83,6 @@ std::pair<int, int> Parser::infixPrecedence(const Token& t) const
 	case Type::Slash:
 		return std::make_pair(3, 4);
 	default:
-		throw ParseError("bad operator", t.line);
+		throw ParseError("bad operator", scanner.getLine());
 	}
 }

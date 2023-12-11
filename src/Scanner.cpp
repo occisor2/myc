@@ -1,5 +1,9 @@
 #include "Scanner.h"
+#include "Token.h"
+#include <array>
 #include <charconv>
+#include <ios>
+#include <iostream>
 #include <istream>
 #include <stdexcept>
 #include <string>
@@ -16,32 +20,34 @@ const char* ScanError::what() const noexcept
 }
 
 Scanner::Scanner(std::istream& code)
-	: code(code), line(0)
+	: code(code)
 {}
 
-std::vector<Token> Scanner::scan()
+Token Scanner::scan()
 {
-	using Type = Token::Type;
-	std::vector<Token> tokens;
-	
-	while (skipWhitespace())
+	// If skipWhitespace returns false, then an EOF token will be
+	// returned.
+	current = Token(Type::Eof);
+
+	// skipWhitespace will return false if it runs out of characters.
+	if (skipWhitespace())
 	{	
-		Token tok;
+		Token t;
 		char c = code.get();
 		
 		switch (c)
 		{
 		case '+':
-			tok.type = Type::Plus;
+			t.type = Type::Plus;
 			break;
 		case '-':
-			tok.type = Type::Minus;
+			t.type = Type::Minus;
 			break;
 		case '*':
-			tok.type = Type::Star;
+			t.type = Type::Star;
 			break;
 		case '/':
-			tok.type = Type::Slash;
+			t.type = Type::Slash;
 			break;
 		default:
 			if (std::isdigit(c))
@@ -49,19 +55,28 @@ std::vector<Token> Scanner::scan()
 				// This is the first char of the number string, so it
 				// needs to be in the stream for scanning.
 				code.putback(c);
-				tok.type = Type::IntLit;
-				tok.intLit = scanInt();
+				t.type = Type::IntLit;
+				t.intLit = scanInt();
 				break;
 			}
 			
 			throw ScanError("unrecognized token", line);
 		}
 
-		tok.line = line;
-		tokens.push_back(tok);
+		current = t;
 	}
 
-	return tokens;
+	return current;
+}
+
+Token Scanner::peek()
+{
+	return current;
+}
+
+unsigned int Scanner::getLine()
+{
+	return line;
 }
 
 int Scanner::scanInt()
@@ -92,6 +107,13 @@ int Scanner::scanInt()
 	return result;
 }
 
+std::string Scanner::scanIdent()
+{
+	//char c = code.peek();
+
+	return "";
+}
+
 bool Scanner::skipWhitespace()
 {
 	for (;;)
@@ -102,7 +124,9 @@ bool Scanner::skipWhitespace()
 			return false;
 		
 		if (isWhitespace(c))
+		{
 			code.ignore(1, c);
+		}
 		else
 			return true;
 	}

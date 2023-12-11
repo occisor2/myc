@@ -1,17 +1,21 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 
 class Token
 {
 public:
 	enum class Type
 	{
+		Eof,
 		Plus,
 		Minus,
 		Star,
 		Slash,
-		IntLit
+		IntLit,
+		Semi,
+		Ident
 	};
 
 	Token() = default;
@@ -22,5 +26,5 @@ public:
 	
 	Type type{};
 	int intLit{};
-	unsigned int line{};
+	std::string ident;
 };

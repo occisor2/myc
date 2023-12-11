@@ -60,7 +60,7 @@ void Generator::preamble()
 void Generator::postamble()
 {
 	ss << "\n";
-	inst("pop rbp");
+	inst("leave");
 	inst("ret");
 }
 

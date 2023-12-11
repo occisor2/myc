@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 
 void assemble(const fs::path& filePath)
 {
-	std::system(std::format("as -msyntax=intel -mnaked-reg {}", filePath.string()).c_str());
+	std::system(std::format("as -msyntax=intel -mnaked-reg -o out.o {}", filePath.string()).c_str());
 	//std::system(std::format("nasm -felf64 {}", filePath.string()).c_str());
 }
 
@@ -24,26 +24,26 @@ void link(const fs::path& filePath)
 void compile(const fs::path& filePath)
 {
 	std::ifstream codeFile(filePath);
-	Scanner scanner(codeFile);
 
 	try
 	{
-		std::cout << "Tokens:" << std::endl;
-		// Break up code into tokens
-		auto tokens =  scanner.scan();
-		for (auto& t : tokens)
-			std::cout << t << std::endl;
-
-		std::cout << std::endl;
 		// Parse tokens into an AST
-		Parser parser(tokens);
+		Scanner scanner(codeFile);
+		Parser parser(scanner);
+		
 		auto ast = parser.parse();
+
+		codeFile.close();
+		
 		// Generate the assembly code.
 		Generator gen(ast);
 
 		std::ofstream os("./out.s");
+		
 		gen.generate(os);
+		
 		os.close();
+		
 		// Assemble and link
 		assemble("./out.s");
 		link("./out.o");

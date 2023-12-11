@@ -32,6 +32,15 @@ std::ostream& operator<<(std::ostream& out, const Token& t)
 	case Token::Type::IntLit:
 		typeStr = std::to_string(t.intLit);
 		break;
+	case Token::Type::Semi:
+		typeStr = ";";
+		break;
+	case Token::Type::Ident:
+		typeStr = t.ident;
+		break;
+	case Token::Type::Eof:
+		typeStr = "EOF";
+		break;
 	}
 
 	return out << typeStr;

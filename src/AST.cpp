@@ -5,20 +5,20 @@
 
 using Node = AST::Node;
 
-Node::Node(Type type, int intLit, unsigned int line)
-	: type(type), intLit(intLit), line(line), left(nullptr), right(nullptr)
+Node::Node(Type type, int intLit)
+	: type(type), intLit(intLit), left(nullptr), right(nullptr)
 {}
 
-Node::Node(Token::Type type, int intLit, unsigned int line)
-	: Node(tokenToNodeType(type), intLit, line)
+Node::Node(Token::Type type, int intLit)
+	: Node(tokenToNodeType(type), intLit)
 {}
 
-Node::Node(Type type, unsigned int line, std::unique_ptr<Node> left, std::unique_ptr<Node> right)
-	: type(type), line(line), left(std::move(left)), right(std::move(right))
+Node::Node(Type type, std::unique_ptr<Node> left, std::unique_ptr<Node> right)
+	: type(type), left(std::move(left)), right(std::move(right))
 {}
 
-Node::Node(Token::Type type, unsigned int line, std::unique_ptr<Node> left, std::unique_ptr<Node> right)
-	: Node::Node(tokenToNodeType(type), line, std::move(left), std::move(right))
+Node::Node(Token::Type type, std::unique_ptr<Node> left, std::unique_ptr<Node> right)
+	: Node::Node(tokenToNodeType(type), std::move(left), std::move(right))
 {}
 
 AST::Type Node::tokenToNodeType(Token::Type t)
@@ -41,6 +41,8 @@ AST::Type Node::tokenToNodeType(Token::Type t)
 		break;
 	case Token::Type::IntLit:
 		convert = Type::IntLit;
+		break;
+	default:
 		break;
 	}
 	

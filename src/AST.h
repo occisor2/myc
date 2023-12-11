@@ -19,17 +19,16 @@ public:
 	class Node
 	{
 	public:
-		Type type;
+		Type type{};
 		int intLit{};
-		unsigned int line{};
 		std::unique_ptr<Node> left;
 		std::unique_ptr<Node> right;
 
 		Node() = default;
-		Node(Type type, int intLit, unsigned int line);
-		Node(Token::Type type, int intLit, unsigned int line);
-		Node(Type type, unsigned int line, std::unique_ptr<Node> left = nullptr, std::unique_ptr<Node> right = nullptr);
-		Node(Token::Type type, unsigned int line, std::unique_ptr<Node> left = nullptr, std::unique_ptr<Node> right = nullptr);
+		Node(Type type, int intLit);
+		Node(Token::Type type, int intLit);
+		Node(Type type, std::unique_ptr<Node> left = nullptr, std::unique_ptr<Node> right = nullptr);
+		Node(Token::Type type, std::unique_ptr<Node> left = nullptr, std::unique_ptr<Node> right = nullptr);
 
 		static Type tokenToNodeType(Token::Type t);
 	};

@@ -6,6 +6,8 @@ using reg_t = std::array<const char*, 4>::size_type;
 
 class RegisterAllocator
 {
+	static constexpr std::array<const char*, 4> registers = {"r8", "r9", "r10", "r11"};
+
 public:
 	RegisterAllocator();
 
@@ -15,6 +17,5 @@ public:
 	const char* getReg(reg_t reg);
 
 private:
-	static constexpr std::array<const char*, 4> registers = {"r8", "r9", "r10", "r11"};
 	std::array<bool, registers.size()> freeList;
 };

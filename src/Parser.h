@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AST.h"
+#include "Scanner.h"
 #include "Token.h"
 #include <memory>
 #include <stdexcept>
@@ -22,18 +23,13 @@ class Parser
 	
 public:
 	explicit Parser(const std::vector<Token>& tokens);
+	explicit Parser(Scanner& scanner);
 
 	AST parse();
 
 private:
-	const std::vector<Token>& tokens;
-	std::vector<Token>::size_type pos;
+	Scanner& scanner;
 	AST ast;
-
-	Token consume();
-	const Token& peek() const;
-	void next();
-	bool empty() const;
 	
 	std::unique_ptr<Node> primary();
 	std::unique_ptr<Node> binExp(int prevPrec);
