@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Token.h"
 #include <memory>
 #include <vector>
 
@@ -26,11 +25,7 @@ public:
 
 		Node() = default;
 		Node(Type type, int intLit);
-		Node(Token::Type type, int intLit);
 		Node(Type type, std::unique_ptr<Node> left = nullptr, std::unique_ptr<Node> right = nullptr);
-		Node(Token::Type type, std::unique_ptr<Node> left = nullptr, std::unique_ptr<Node> right = nullptr);
-
-		static Type tokenToNodeType(Token::Type t);
 	};
 
 	std::unique_ptr<Node> root;

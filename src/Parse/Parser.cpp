@@ -1,6 +1,7 @@
 #include "Parser.h"
-#include "AST.h"
-#include "Token.h"
+#include "AST/AST.h"
+#include "CodeGen/IR/Generator.h"
+#include "Lex/Token.h"
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -21,11 +22,15 @@ Parser::Parser(Scanner& scanner)
 	: scanner(scanner)
 {}
 
-AST Parser::parse()
+void Parser::parse()
 {
-	ast.root = binExp(0);
 
-	return std::move(ast);
+	AST ast(expression(0));
+	IR::Generator gen(symTable);
+	auto insts = gen(ast);
+
+	for (const auto& i : insts)
+		std::cout << i << std::endl;
 }
 
 std::unique_ptr<Node> Parser::primary()
@@ -35,13 +40,13 @@ std::unique_ptr<Node> Parser::primary()
 	switch (tok.type)
 	{
 	case Token::Type::IntLit:
-		return std::make_unique<Node>(tok.type, tok.intLit);
+		return std::make_unique<Node>(AST::Type::IntLit, tok.intLit);
 	default:
 		throw ParseError("expected literal", scanner.getLine());
 	}
 }
 
-std::unique_ptr<Node> Parser::binExp(int prevPrec)
+std::unique_ptr<Node> Parser::expression(int prevPrec)
 {
 	// Scan in the left literal
 	auto left = primary();
@@ -62,9 +67,9 @@ std::unique_ptr<Node> Parser::binExp(int prevPrec)
 		if (lbp < prevPrec)
 			break;
 
-		auto right  = binExp(rbp);
+		auto right  = expression(rbp);
 
-		left = std::make_unique<Node>(op.type, std::move(left), std::move(right));
+		left = std::make_unique<Node>(tokenToBinOpType(op), std::move(left), std::move(right));
 	}
 
 	return left;
@@ -84,5 +89,22 @@ std::pair<int, int> Parser::infixPrecedence(const Token& t) const
 		return std::make_pair(3, 4);
 	default:
 		throw ParseError("bad operator", scanner.getLine());
+	}
+}
+
+AST::Type Parser::tokenToBinOpType(const Token& t) const
+{
+	switch (t.type)
+	{
+	case Token::Type::Plus:
+		return AST::Type::Add;
+	case Token::Type::Minus:
+		return AST::Type::Subtract;
+	case Token::Type::Star:
+		return AST::Type::Multiply;
+	case Token::Type::Slash:
+		return AST::Type::Divide;
+	default:
+		throw std::runtime_error("bad operator");
 	}
 }

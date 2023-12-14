@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 cmake_policy(SET CMP0135 NEW)
+cmake_policy(SET CMP0076 NEW)
 
 project(myc
   VERSION 0.1
@@ -11,19 +12,22 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(MYC_SOURCES
-  main.cpp
-  Token.cpp
-  Scanner.cpp
-  AST.cpp
-  Parser.cpp
-  Generator.cpp
-  RegisterAllocator.cpp
-)
-list(TRANSFORM MYC_SOURCES PREPEND "src/")
+# set(MYC_SOURCES
+#   main.cpp
+#   Token.cpp
+#   Scanner.cpp
+#   AST.cpp
+#   Parser.cpp
+#   Generator.cpp
+#   RegisterAllocator.cpp
+# )
+# list(TRANSFORM MYC_SOURCES PREPEND "src/")
 
-add_executable(myc ${MYC_SOURCES})
-target_compile_options(myc PRIVATE -Wall -Wextra -pedantic -pipe -Og -g)
+add_executable(myc)
+target_compile_options(myc PRIVATE -Wall -Wextra -pedantic -pipe -Og
+  -g)
+target_include_directories(myc PRIVATE src)
+add_subdirectory(src)
 
 # Setup GTest
 # include(FetchContent)

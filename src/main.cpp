@@ -1,6 +1,6 @@
-#include "Generator.h"
-#include "Parser.h"
-#include "Scanner.h"
+#include "Compiler.h"
+#include "Parse/Parser.h"
+#include "Lex/Scanner.h"
 #include <cstdlib>
 #include <format>
 #include <fstream>
@@ -21,52 +21,10 @@ void link(const fs::path& filePath)
 	std::system(std::format("cc {}", filePath.string()).c_str());
 }
 
-void compile(const fs::path& filePath)
-{
-	std::ifstream codeFile(filePath);
-
-	try
-	{
-		// Parse tokens into an AST
-		Scanner scanner(codeFile);
-		Parser parser(scanner);
-		
-		auto ast = parser.parse();
-
-		codeFile.close();
-		
-		// Generate the assembly code.
-		Generator gen(ast);
-
-		std::ofstream os("./out.s");
-		
-		gen.generate(os);
-		
-		os.close();
-		
-		// Assemble and link
-		assemble("./out.s");
-		link("./out.o");
-	}
-	catch (ScanError& e)
-	{
-		std::cerr << "Error, line " << e.line << ": " << e.what() << std::endl;
-	}
-	catch (ParseError& p)
-	{
-		std::cerr << "Error, line " << p.line << ": " << p.what() << std::endl;
-	}
-}
-
 int main(int argc, char* argv[])
 {
-	if (argc != 2)
-	{
-		std::cout << "Usage: " << argv[0] << " [path to code file]" << std::endl;
-		return EXIT_FAILURE;
-	}
-
-	compile(argv[1]);
+	Compiler c(argc, argv);
+	c.compile();
 	
 	return EXIT_SUCCESS;
 }

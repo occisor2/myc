@@ -24,9 +24,7 @@ class Scanner
 	static constexpr auto maxIdentLen = 32;
 	
 public:
-	Scanner(std::istream& code = std::cin);
-
-	//std::vector<Token> scan();
+	Scanner(std::istream& code);
 
 	/**
 	 * Scans the next token
@@ -37,15 +35,6 @@ public:
 	 * Gets the line the current token 
 	 */
 	unsigned int getLine();
-
-	/**
-	 * Peeks at the current token.
-	 */
-	//Token peek();
-	/**
-	 * Skips the current token.
-	 */
-	//void skip();
 
 private:
 	std::istream& code;
