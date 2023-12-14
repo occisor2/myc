@@ -2,7 +2,7 @@
 
 Myc is a small C compiler I am writing to learn more about compilers.
 
-The projects below have served as inspiration:
+The projects below have served as inspiration:  
 https://github.com/DoctorWkt/acwj  
 https://github.com/jezze/subc
 
