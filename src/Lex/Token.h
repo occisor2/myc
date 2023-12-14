@@ -15,16 +15,30 @@ public:
 		Slash,
 		IntLit,
 		Semi,
-		Ident
+		Ident,
+		Int,
+		Equals,
 	};
 
-	Token() = default;
 	explicit Token(Type type);
-	Token(Type type, int intLit);
+	// Normal identifiers
+	explicit Token(std::string ident);
+	// Keywords and others
+	Token(Type type, std::string ident);
+	// Integers
+	Token(int intLit, std::string numStr);
 
-	friend std::ostream& operator<<(std::ostream& os, const Token& t);
+	Type getType() const;
+	int getIntLit() const;
+	std::string getText() const;
+	std::string getIdent() const;
 	
+	friend std::ostream& operator<<(std::ostream& os, const Token& t);
+
+private:
 	Type type{};
 	int intLit{};
+	// Used to hold name of an identifier or the text representing a
+	// token
 	std::string ident;
 };

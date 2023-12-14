@@ -2,6 +2,8 @@
 #include "AST/AST.h"
 #include "CodeGen/IR/Generator.h"
 #include "Lex/Token.h"
+#include "error.h"
+#include <format>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -9,22 +11,12 @@
 
 using Node = AST::Node;
 
-ParseError::ParseError(const char* message, unsigned int line) noexcept
-	: std::runtime_error(message), message(message), line(line)
-{}
-
-const char* ParseError::what() const noexcept
-{
-	return std::runtime_error::what();
-}
-
 Parser::Parser(Scanner& scanner)
 	: scanner(scanner)
 {}
 
 void Parser::parse()
 {
-
 	AST ast(expression(0));
 	IR::Generator gen(symTable);
 	auto insts = gen(ast);
@@ -33,16 +25,22 @@ void Parser::parse()
 		std::cout << i << std::endl;
 }
 
+void Parser::panic(std::string message) const
+{
+	error::fatal(message, scanner.getFileName(), scanner.getLine());
+}
+
 std::unique_ptr<Node> Parser::primary()
 {	
-	auto tok = scanner.scan();
+	auto t = scanner.scan();
 
-	switch (tok.type)
+	switch (t.getType())
 	{
 	case Token::Type::IntLit:
-		return std::make_unique<Node>(AST::Type::IntLit, tok.intLit);
+		return std::make_unique<Node>(AST::Type::IntLit, t.getIntLit());
 	default:
-		throw ParseError("expected literal", scanner.getLine());
+		panic(std::format("expected integer literal but got '{}' instead", t.getText()));
+		return nullptr;
 	}
 }
 
@@ -57,11 +55,8 @@ std::unique_ptr<Node> Parser::expression(int prevPrec)
 	while (true)
 	{
 		auto op = scanner.peek();
-		if (op.type == Token::Type::Eof)
+		if (op.getType() == Token::Type::Eof)
 			break;
-		
-		if (op.type == Token::Type::IntLit)
-			throw ParseError("expected operator", scanner.getLine());
 
 		auto [lbp, rbp] = infixPrecedence(op);
 		if (lbp < prevPrec)
@@ -79,7 +74,7 @@ std::pair<int, int> Parser::infixPrecedence(const Token& t) const
 {
 	using Type = Token::Type;
 	
-	switch (t.type)
+	switch (t.getType())
 	{
 	case Type::Plus:
 	case Type::Minus:
@@ -88,13 +83,14 @@ std::pair<int, int> Parser::infixPrecedence(const Token& t) const
 	case Type::Slash:
 		return std::make_pair(3, 4);
 	default:
-		throw ParseError("bad operator", scanner.getLine());
+		panic(std::format("invalid operator '{}'", t.getText()));
+		return {};
 	}
 }
 
 AST::Type Parser::tokenToBinOpType(const Token& t) const
 {
-	switch (t.type)
+	switch (t.getType())
 	{
 	case Token::Type::Plus:
 		return AST::Type::Add;

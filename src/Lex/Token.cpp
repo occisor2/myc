@@ -7,41 +7,49 @@ Token::Token(Type type)
 	: type(type)
 {}
 
-Token::Token(Type type, int intLit)
-	: type(type), intLit(intLit)
+Token::Token(Type type, std::string ident)
+	: type(type), ident(ident)
 {}
+
+Token::Token(std::string ident)
+	: type(Type::Ident), ident(ident)
+{}
+
+
+Token::Token(int intLit, std::string numStr)
+	: type(Type::IntLit), intLit(intLit), ident(numStr)
+{}
+
+Type Token::getType() const
+{
+	return type;
+}
+
+int Token::getIntLit() const
+{
+	return intLit;
+}
+
+std::string Token::getText() const
+{
+	return ident;
+}
+
+std::string Token::getIdent() const
+{
+	return ident;
+}
 
 std::ostream& operator<<(std::ostream& out, const Token& t)
 {
-	std::string typeStr;
-
 	switch (t.type)
 	{
-	case Token::Type::Plus:
-		typeStr = "+";
+	case Type::Eof:
+		out << "EOF";
 		break;
-	case Token::Type::Minus:
-		typeStr = "-";
-		break;
-	case Token::Type::Star:
-		typeStr = "*";
-		break;
-	case Token::Type::Slash:
-		typeStr = "/";
-		break;
-	case Token::Type::IntLit:
-		typeStr = std::to_string(t.intLit);
-		break;
-	case Token::Type::Semi:
-		typeStr = ";";
-		break;
-	case Token::Type::Ident:
-		typeStr = t.ident;
-		break;
-	case Token::Type::Eof:
-		typeStr = "EOF";
-		break;
+	default:
+		out << t.ident;
 	}
 
-	return out << typeStr;
+	return out;
 }

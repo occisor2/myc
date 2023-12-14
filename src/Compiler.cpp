@@ -1,6 +1,8 @@
 #include "Compiler.h"
 #include "Lex/Scanner.h"
+#include "Lex/Token.h"
 #include "Parse/Parser.h"
+#include "error.h"
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -13,11 +15,25 @@ Compiler::Compiler(int argc, char* argv[])
 void Compiler::compile()
 {
 	std::ifstream codeFile(options.inputFileName);
-	
-	Scanner s(codeFile);
-	Parser p(s);
 
-	p.parse();
+	try
+	{
+		Scanner s(codeFile, options.inputFileName.filename());
+		Parser p(s);
+		p.parse();
+
+		// Token t = s.scan();
+	
+		// while (t.getType() != Token::Type::Eof)
+		// {
+		// 	std::cout << t << std::endl;
+		// 	t = s.scan();
+		// }
+	}
+	catch (error::FatalError& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
 }
 
 Compiler::Options Compiler::parseCmdArgs(int argc, char* argv[])

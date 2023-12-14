@@ -1,125 +1,151 @@
 #include "Scanner.h"
 #include "Token.h"
-#include <array>
+#include "error.h"
+#include <cctype>
 #include <charconv>
-#include <ios>
-#include <iostream>
+#include <format>
 #include <istream>
-#include <stdexcept>
 #include <string>
-#include <vector>
 
-
-ScanError::ScanError(const char* message, unsigned int line) noexcept
-	: std::runtime_error(message), message(message), line(line)
-{}
-
-const char* ScanError::what() const noexcept
-{
-	return std::runtime_error::what();
-}
-
-Scanner::Scanner(std::istream& code)
-	: code(code)
+Scanner::Scanner(std::istream& code, std::string fileName)
+	: code(code), fileName(fileName)
 {}
 
 Token Scanner::scan()
 {
-	// If skipWhitespace returns false, then an EOF token will be
-	// returned.
-	current = Token(Type::Eof);
+	auto nextToken = getNext();
+	current = nextToken;
+	return current;
+}
 
+Token Scanner::getNext()
+{
 	// skipWhitespace will return false if it runs out of characters.
 	if (skipWhitespace())
 	{	
-		Token t;
 		char c = code.get();
 		
 		switch (c)
 		{
 		case '+':
-			t.type = Type::Plus;
-			break;
+			return Token(Type::Plus, std::string(1, c));
 		case '-':
-			t.type = Type::Minus;
-			break;
+			return Token(Type::Minus, std::string(1, c));
 		case '*':
-			t.type = Type::Star;
-			break;
+			return Token(Type::Star, std::string(1, c));
 		case '/':
-			t.type = Type::Slash;
-			break;
+			return Token(Type::Slash, std::string(1, c));
+		case ';':
+			return Token(Type::Semi, std::string(1, c));
+		case '=':
+			return Token(Type::Equals, std::string(1, c));
 		default:
-			if (std::isdigit(c))
+			if (std::isalpha(static_cast<unsigned char>(c)) || '_' == c)
+			{
+				code.putback(c);
+				return scanIdent();
+			}
+			else if (std::isdigit(static_cast<unsigned char>(c)))
 			{
 				// This is the first char of the number string, so it
 				// needs to be in the stream for scanning.
 				code.putback(c);
-				t.type = Type::IntLit;
-				t.intLit = scanInt();
-				break;
+				return scanInt();
 			}
-			
-			throw ScanError("unrecognized token", line);
+		   
+			panic(std::format("unrecognized token at character '{}'", c));
 		}
-
-		current = t;
 	}
 
-	return current;
+	return Token(Type::Eof);
 }
 
-Token Scanner::peek()
+Token Scanner::peek() const
 {
 	return current;
 }
 
-unsigned int Scanner::getLine()
+unsigned int Scanner::getLine() const
 {
 	return line;
 }
 
-int Scanner::scanInt()
+std::string Scanner::getFileName() const
 {
-	std::string num;
+	return fileName;
+}
+
+void Scanner::panic(std::string message)
+{
+	error::fatal(message, fileName, line);
+}
+
+Token Scanner::scanInt()
+{
+	std::string numberStr;
 	int result{};
 	char c{};
 	
 	for(;;)
 	{
 		c = code.get();
-		// Check if peek() failed because of EOF
 		if (code.eof())
 			break;
 
-		if (std::isdigit(c))
-			num.push_back(c);
+		if (std::isdigit(static_cast<unsigned char>(c)))
+			numberStr.push_back(c);
 		else
 		{
 			code.putback(c);
 			break;
 		}
 	}
+
+	if (std::isalpha(static_cast<unsigned char>(code.peek())) || '_' == c)
+		panic(std::format("invalid digit '{}' in integer", code.peek()));
 	
 	// Convert string to a number
-	std::from_chars(num.data(), num.data() + num.size(), result);
+	std::from_chars(numberStr.data(), numberStr.data() + numberStr.size(), result);
 
-	return result;
+	return Token(result, numberStr);
 }
 
-std::string Scanner::scanIdent()
+Token Scanner::scanIdent()
 {
-	//char c = code.peek();
+	std::string ident;
+	auto i = 0;
 
-	return "";
+	for(;;)
+	{
+		if (i >= maxIdentLen)
+			panic(std::format("reached the max identifier length in identifier '{}'", ident));
+		
+		char c = code.get();
+		if (code.eof())
+			break;
+
+		if (std::isalnum(static_cast<unsigned char>(c)) || '_' == c)
+			ident.push_back(c);
+		else
+		{
+			code.putback(c);
+			break;
+		}
+
+		++i;
+	}
+
+	if (keywords.contains(ident))
+		return Token(keywords.at(ident), ident);
+
+	return Token(ident);
 }
 
 bool Scanner::skipWhitespace()
 {
 	for (;;)
 	{
-		char c = code.peek();
-		// Check if peek() failed because of EOF
+		auto c = code.peek();
 		if (code.eof())
 			return false;
 		

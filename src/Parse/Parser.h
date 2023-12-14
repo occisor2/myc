@@ -5,18 +5,8 @@
 #include "Lex/Token.h"
 #include "Symbol/SymTable.h"
 #include <memory>
-#include <stdexcept>
+#include <string>
 #include <unordered_map>
-
-class ParseError : std::runtime_error
-{
-public:
-	ParseError(const char* message, unsigned int line) noexcept;
-	const char* what() const noexcept override;
-
-	std::string message;
-	unsigned int line;
-};
 
 class Parser
 {
@@ -38,10 +28,12 @@ private:
 	Scanner& scanner;
 	SymTable symTable;
 	AST ast;
+
+	void panic(std::string message) const;
 	
 	std::unique_ptr<Node> primary();
 	std::unique_ptr<Node> expression(int prevPrec);
-	
+
 	std::pair<int, int> infixPrecedence(const Token& t) const;
 	AST::Type tokenToBinOpType(const Token& t) const;
 };

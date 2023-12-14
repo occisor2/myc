@@ -1,5 +1,6 @@
 target_sources(myc PRIVATE
   main.cpp
+  error.cpp
   Compiler.cpp)
 
 add_subdirectory(Lex)
