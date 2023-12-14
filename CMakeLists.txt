@@ -12,22 +12,15 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# set(MYC_SOURCES
-#   main.cpp
-#   Token.cpp
-#   Scanner.cpp
-#   AST.cpp
-#   Parser.cpp
-#   Generator.cpp
-#   RegisterAllocator.cpp
-# )
-# list(TRANSFORM MYC_SOURCES PREPEND "src/")
-
 add_executable(myc)
-target_compile_options(myc PRIVATE -Wall -Wextra -pedantic -pipe -Og
-  -g)
+target_compile_options(myc PRIVATE -Wall -Wextra -pedantic -pipe -Og -g)
 target_include_directories(myc PRIVATE src)
 add_subdirectory(src)
+
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+endif(CCACHE_FOUND)
 
 # Setup GTest
 # include(FetchContent)
