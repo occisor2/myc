@@ -29,7 +29,7 @@ private:
 	SymTable symTable;
 	AST ast;
 
-	void panic(std::string message) const;
+	[[noreturn]] void panic(std::string message) const;
 	
 	std::unique_ptr<Node> primary();
 	std::unique_ptr<Node> expression(int prevPrec);

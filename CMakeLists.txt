@@ -17,9 +17,11 @@ target_compile_options(myc PRIVATE -Wall -Wextra -pedantic -pipe -Og -g)
 target_include_directories(myc PRIVATE src)
 add_subdirectory(src)
 
+message(CHECK_START "Finding ccahe")
 find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+  message(CHECK_PASS "found")
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 endif(CCACHE_FOUND)
 
 # Setup GTest

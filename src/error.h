@@ -23,6 +23,6 @@ public:
  * Writes the error message to stdout along with the location and then
  * throws an error::Error exception.
  */
-void fatal(const std::string& message, const std::string& fileName, int line);
+[[noreturn]] void fatal(const std::string& message, const std::string& fileName, int line);
 
 }

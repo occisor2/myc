@@ -40,7 +40,6 @@ std::unique_ptr<Node> Parser::primary()
 		return std::make_unique<Node>(AST::Type::IntLit, t.getIntLit());
 	default:
 		panic(std::format("expected integer literal but got '{}' instead", t.getText()));
-		return nullptr;
 	}
 }
 
@@ -84,7 +83,6 @@ std::pair<int, int> Parser::infixPrecedence(const Token& t) const
 		return std::make_pair(3, 4);
 	default:
 		panic(std::format("invalid operator '{}'", t.getText()));
-		return {};
 	}
 }
 
