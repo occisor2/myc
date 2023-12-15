@@ -20,7 +20,7 @@ public:
 	std::string name;
 	int constant;
 
-	Addr() = default;
+	Addr();
 	explicit Addr(int constant);
 	Addr(std::string name, bool temp = false);
 	

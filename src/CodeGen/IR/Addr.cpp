@@ -3,6 +3,11 @@
 
 using namespace IR;
 
+// Default setup to where it won't be printed on debug if empty
+Addr::Addr()
+	: name(""), type(Type::Name), temp(false)
+{}
+
 Addr::Addr(int constant)
 	: constant(constant), type(Type::Constant)
 {}

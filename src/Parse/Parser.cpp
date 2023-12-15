@@ -20,12 +20,7 @@ Parser::Parser(Scanner& scanner)
 void Parser::parse()
 {
 	statements();
-	// auto lines = IRGen.getLines();
-
-	// for (const auto& i : lines)
-	// 	std::cout << i << std::endl;
-
-	std::cout << "Parsed with no errors" << std::endl;
+	IRGen.debug();
 }
 
 void Parser::panic(std::string message) const
@@ -60,14 +55,14 @@ void Parser::statements()
 			statementNode = expression(0);
 		}
 
-		if (statementNode)
-		{
-			auto ast = AST(std::move(statementNode));
-			ast.debug();
-		}
-
 		// if (statementNode)
-		// 	IRGen(AST(std::move(statementNode)));
+		// {
+		// 	auto ast = AST(std::move(statementNode));
+		// 	ast.debug();
+		// }
+
+		if (statementNode)
+		 	IRGen(AST(std::move(statementNode)));
 	}
 }
 
