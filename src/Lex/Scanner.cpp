@@ -20,6 +20,13 @@ Token Scanner::scan()
 
 Token Scanner::getNext()
 {
+	// Check if a token was putback
+	if (wasPutback)
+	{
+		wasPutback = false;
+		return previous;
+	}
+	
 	// skipWhitespace will return false if it runs out of characters.
 	if (skipWhitespace())
 	{	
@@ -57,12 +64,18 @@ Token Scanner::getNext()
 		}
 	}
 
-	return Token(Type::Eof);
+	return Token(Type::Eof, "EOF");
 }
 
 Token Scanner::peek() const
 {
 	return current;
+}
+
+void Scanner::putback(Token t)
+{
+	previous = t;
+	wasPutback = true;
 }
 
 unsigned int Scanner::getLine() const

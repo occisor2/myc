@@ -23,6 +23,7 @@ public:
 	 */
 	Token scan();
 	Token peek() const;
+	void putback(Token t);
 	/**
 	 * Gets the line the current token 
 	 */
@@ -33,6 +34,8 @@ private:
 	std::istream& code;
 	std::string fileName;
 	Token current = Token(Type::Eof);
+	Token previous = Token(Type::Eof);
+	bool wasPutback = false;
 	unsigned int line = 1;
 
 	void panic(std::string message);
