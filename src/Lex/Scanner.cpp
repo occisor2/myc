@@ -24,7 +24,7 @@ Token Scanner::getNext()
 	if (wasPutback)
 	{
 		wasPutback = false;
-		return previous;
+		return current;
 	}
 	
 	// skipWhitespace will return false if it runs out of characters.
@@ -69,6 +69,9 @@ Token Scanner::getNext()
 
 Token Scanner::peek() const
 {
+	// Check if a token was putback
+	if (wasPutback)
+		return previous;
 	return current;
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AST/AST.h"
+#include "CodeGen/IR/Generator.h"
 #include "Lex/Scanner.h"
 #include "Lex/Token.h"
 #include "Symbol/SymTable.h"
@@ -27,13 +28,24 @@ public:
 private:
 	Scanner& scanner;
 	SymTable symTable;
-	AST ast;
+	IR::Generator IRGen;
 
 	[[noreturn]] void panic(std::string message) const;
-	
+
+	void statements();
+	std::unique_ptr<Node> varDeclare();
 	std::unique_ptr<Node> primary();
 	std::unique_ptr<Node> expression(int prevPrec);
 
 	std::pair<int, int> infixPrecedence(const Token& t) const;
 	AST::Type tokenToBinOpType(const Token& t) const;
+
+	/**
+	 * Test current token against type.
+	 *
+	 * If successfully, scans the next token, else panic.
+	 */
+	void match(Token::Type type, const std::string& expected);
+	void matchSemi();
+	Token matchIdent();
 };

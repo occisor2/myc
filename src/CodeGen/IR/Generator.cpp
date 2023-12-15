@@ -15,11 +15,9 @@ Generator::Generator(SymTable& symTable)
 	: symTable(symTable)
 {}
 
-std::vector<Instruct> Generator::operator()(const AST& ast)
+void Generator::operator()(const AST& ast)
 {
 	expression(ast.root.get());
-
-	return lines;
 }
 
 Addr Generator::makeTemp()

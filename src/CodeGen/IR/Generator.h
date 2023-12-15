@@ -22,8 +22,9 @@ class Generator
 public:
 	Generator(SymTable& symTable);
 	
-	std::vector<Instruct> operator()(const AST& ast);
-	
+	void operator()(const AST& ast);
+	std::vector<Instruct> getLines();
+
 private:
 	SymTable& symTable;
 	std::vector<Instruct> lines;

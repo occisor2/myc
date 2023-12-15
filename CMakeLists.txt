@@ -22,6 +22,8 @@ find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
   message(CHECK_PASS "found")
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+else()
+  message(CHECK_FAIL "not found")
 endif(CCACHE_FOUND)
 
 # Setup GTest
