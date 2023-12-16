@@ -1,5 +1,6 @@
 #pragma once
 
+#include <initializer_list>
 #include <memory>
 #include <string>
 #include <vector>
@@ -9,9 +10,9 @@ class AST
 public:
 	enum class Type
 	{
+		Block,
 		IntLit,
 		Ident,
-		Lval,
 		Assign,
 		Add,
 		Subtract,
@@ -27,16 +28,18 @@ public:
 		std::string symName;
 		std::unique_ptr<Node> left;
 		std::unique_ptr<Node> right;
+		std::vector<std::unique_ptr<Node>> block;
 
 		Node() = default;
 		Node(Type type, int intLit);
 		Node(Type type, std::string ident);
 		Node(Type type, std::unique_ptr<Node> left = nullptr, std::unique_ptr<Node> right = nullptr);
+		explicit Node(std::vector<std::unique_ptr<Node>> block);
 	};
 
 	std::unique_ptr<Node> root;
 
-	explicit AST(std::unique_ptr<Node> root = nullptr);
+	AST(std::unique_ptr<Node> root = nullptr);
 
 	void debug() const;
 

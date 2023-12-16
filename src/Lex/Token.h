@@ -18,6 +18,8 @@ public:
 		Ident,
 		Int,
 		Equals,
+		OpenBrace,
+		CloseBrace
 	};
 
 	explicit Token(Type type);

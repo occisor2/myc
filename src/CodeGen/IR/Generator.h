@@ -32,6 +32,7 @@ private:
 	SymTable& symTable;
 	std::vector<Instruct> lines;
 
+	void block(const AST& ast);
 	Addr makeTemp();
 	Addr expression(const AST::Node* n);
 	Addr bin(AST::Type type, Addr left, Addr right);

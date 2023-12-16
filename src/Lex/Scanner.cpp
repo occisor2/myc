@@ -46,6 +46,10 @@ Token Scanner::getNext()
 			return Token(Type::Semi, std::string(1, c));
 		case '=':
 			return Token(Type::Equals, std::string(1, c));
+		case '{':
+			return Token(Type::OpenBrace, std::string(1, c));
+		case '}':
+			return Token(Type::CloseBrace, std::string(1, c));			
 		default:
 			if (std::isalpha(static_cast<unsigned char>(c)) || '_' == c)
 			{
@@ -79,6 +83,11 @@ void Scanner::putback(Token t)
 {
 	previous = t;
 	wasPutback = true;
+}
+
+bool Scanner::eof() const
+{
+	return peek().getType() == Type::Eof;
 }
 
 unsigned int Scanner::getLine() const

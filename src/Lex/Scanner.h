@@ -24,6 +24,7 @@ public:
 	Token scan();
 	Token peek() const;
 	void putback(Token t);
+	bool eof() const;
 	/**
 	 * Gets the line the current token 
 	 */

@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <unistd.h>
 #include <utility>
+#include <vector>
 
 using Node = AST::Node;
 
@@ -19,7 +20,12 @@ Parser::Parser(Scanner& scanner)
 
 void Parser::parse()
 {
-	statements();
+	// Scan the first token
+	scanner.scan();
+
+	auto ast = block();
+	IRGen(ast);
+	
 	IRGen.debug();
 }
 
@@ -28,42 +34,48 @@ void Parser::panic(std::string message) const
 	error::fatal(message, scanner.getFileName(), scanner.getLine());
 }
 
-void Parser::statements()
+AST Parser::block()
 {
-	// Scan in the first token
-	scanner.scan();
-	
-	for(;;)
+	std::vector<std::unique_ptr<Node>> stats;
+
+	match(Token::Type::OpenBrace, "{");
+
+	while (scanner.peek().getType() != Token::Type::CloseBrace)
 	{
-		std::unique_ptr<Node> statementNode;
-		auto t = scanner.peek();
-
-		switch (t.getType())
-		{
-		case Token::Type::Eof:
-			return;
-		case Token::Type::Semi: // Null statement (just a semi-colon)
-			// East the semi
-			matchSemi();
-			break;
-		case Token::Type::Int:
-			// Will be nullptr if declaration ended up not being an
-			// assign as well.
-			statementNode = varDeclare();
-			break;
-		default: // Parse an 'expression statement'
-			statementNode = expression(0);
-		}
-
-		// if (statementNode)
-		// {
-		// 	auto ast = AST(std::move(statementNode));
-		// 	ast.debug();
-		// }
-
-		if (statementNode)
-		 	IRGen(AST(std::move(statementNode)));
+		if (scanner.eof())
+			panic("unexpected EOF");
+		
+		auto stat = statement();
+		if (stat)
+			stats.push_back(std::move(stat));
 	}
+
+	auto root = std::make_unique<AST::Node>(std::move(stats));
+	return AST(std::move(root));
+}
+
+std::unique_ptr<Node> Parser::statement()
+{
+	auto t = scanner.peek();
+
+	switch (t.getType())
+	{
+	case Token::Type::Semi: // Null statement (just a semi-colon)
+		// East the semi
+		matchSemi();
+		break;
+	case Token::Type::Int:
+		// Will be nullptr if declaration ended up not being an
+		// assign as well.
+		return varDeclare();
+	default:
+		auto exp = expression(0);
+		// Eat the trailing semi from the expression
+		matchSemi();
+		return exp;
+	}
+
+	return nullptr;
 }
 
 std::unique_ptr<Node> Parser::varDeclare()
@@ -96,7 +108,7 @@ std::unique_ptr<Node> Parser::primary()
 			panic(std::format("variable '{}' has not been declared", t.getIdent()));
 		return std::make_unique<Node>(AST::Type::Ident, t.getIdent());
 	default:
-		panic(std::format("expected integer literal but got '{}' instead", t.getText()));
+		panic(std::format("expected expression but got '{}' instead", t.getText()));
 	}
 }
 

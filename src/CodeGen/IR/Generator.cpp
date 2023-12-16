@@ -3,11 +3,8 @@
 #include "Instruct.h"
 #include "Addr.h"
 #include "Symbol/SymTable.h"
-#include "Symbol/Symbol.h"
 #include <charconv>
-#include <format>
 #include <iostream>
-#include <stdexcept>
 #include <string>
 
 using namespace IR;
@@ -18,12 +15,20 @@ Generator::Generator(SymTable& symTable)
 
 void Generator::operator()(const AST& ast)
 {
-	expression(ast.root.get());
+	block(ast);
 }
 
 std::vector<Instruct> Generator::getLines() const
 {
 	return lines;
+}
+
+void Generator::block(const AST& block)
+{
+	auto& statements = block.root->block;
+
+	for (auto& s : statements)
+		expression(s.get());
 }
 
 Addr Generator::makeTemp()

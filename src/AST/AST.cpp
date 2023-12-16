@@ -1,6 +1,9 @@
 #include "AST.h"
+#include "Lex/Token.h"
+#include <algorithm>
 #include <iostream>
 #include <memory>
+#include <vector>
 
 using Node = AST::Node;
 
@@ -20,6 +23,12 @@ AST::AST(std::unique_ptr<Node> root)
 	: root(std::move(root))
 {}
 
+Node::Node(std::vector<std::unique_ptr<Node>> block)
+	: type(Type::Block), block(std::move(block))
+{
+	
+}
+
 void AST::debug() const
 {
 	recDebug(root.get(), 0);
@@ -36,6 +45,8 @@ void AST::recDebug(const Node* n, int level) const
 	
 	switch (n->type)
 	{
+	case Type::Block:
+		std::cout << "BLOCK:" << std::endl;
 	case Type::IntLit:
 		std::cout << "INTLIT: ";
 		std::cout << n->intLit;
@@ -43,11 +54,6 @@ void AST::recDebug(const Node* n, int level) const
 		break;
 	case Type::Ident:
 		std::cout << "IDENT: ";
-		std::cout << n->symName;
-		std::cout << std::endl;
-		break;
-	case Type::Lval:
-		std::cout << "LVAL: ";
 		std::cout << n->symName;
 		std::cout << std::endl;
 		break;

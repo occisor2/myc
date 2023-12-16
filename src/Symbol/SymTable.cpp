@@ -3,6 +3,10 @@
 #include <algorithm>
 #include <stdexcept>
 
+SymTable::SymTable(SymTable* prev)
+	: prev(prev)
+{}
+
 void SymTable::insert(Symbol s)
 {
 	if (exists(s.getName()))

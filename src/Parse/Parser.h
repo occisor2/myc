@@ -33,6 +33,9 @@ private:
 	[[noreturn]] void panic(std::string message) const;
 
 	void statements();
+	AST block();
+	std::unique_ptr<Node> statement();
+	std::unique_ptr<Node> functionDecl();
 	std::unique_ptr<Node> varDeclare();
 	std::unique_ptr<Node> primary();
 	std::unique_ptr<Node> expression(int prevPrec);

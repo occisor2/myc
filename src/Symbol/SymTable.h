@@ -7,7 +7,7 @@
 class SymTable
 {
 public:
-	SymTable() = default;
+	SymTable(SymTable* prev = nullptr);
 
 	void insert(Symbol s);
 	Symbol lookup(const std::string& name) const;
@@ -15,5 +15,6 @@ public:
 
 private:
 	std::unordered_map<std::string, Symbol> table;
+	SymTable* prev;
 };
 
