@@ -36,17 +36,23 @@ void AST::debug() const
 
 void AST::recDebug(const Node* n, int level) const
 {
-	if (n->left.get())
-		recDebug(n->left.get(), level+2);
-	if (n->right.get())
-		recDebug(n->right.get(), level+2);
+	if (n->type != Type::Block)
+	{
+		if (n->left.get())
+			recDebug(n->left.get(), level+2);
+		if (n->right.get())
+			recDebug(n->right.get(), level+2);
+	}
 
 	for (auto i = 0; i < level; ++i) std::cout << " ";
 	
 	switch (n->type)
 	{
 	case Type::Block:
+		for (auto& i : n->block)
+			recDebug(i.get(), level+2);
 		std::cout << "BLOCK:" << std::endl;
+		break;
 	case Type::IntLit:
 		std::cout << "INTLIT: ";
 		std::cout << n->intLit;
@@ -76,6 +82,38 @@ void AST::recDebug(const Node* n, int level) const
 	case Type::Divide:
 		std::cout << "DIV: ";
 		std::cout << std::endl;
+		break;
+	case Type::Equal:
+		std::cout << "EQUAL: ";
+		std::cout << std::endl;
+		break;
+	case Type::Less:
+		std::cout << "LESS: ";
+		std::cout << std::endl;
+		break;
+	case Type::Greater:
+		std::cout << "GREATER: ";
+		std::cout << std::endl;
+		break;
+	case Type::LessEqual:
+		std::cout << "LESSEQUAL: ";
+		std::cout << std::endl;
+		break;
+	case Type::GreaterEqual:
+		std::cout << "GREATEREQUAL: ";
+		std::cout << std::endl;
+		break;
+	case Type::Not:
+		std::cout << "NOT: ";
+		std::cout << std::endl;
+		break;
+	case Type::NotEqual:
+		std::cout << "NOTEQUAL: ";
+		std::cout << std::endl;
+		break;
+	case Type::Neg:
+		std::cout << "NEG: ";
+		std::cout << std::endl;		
 		break;
 	}
 }

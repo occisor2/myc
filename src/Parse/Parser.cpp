@@ -1,7 +1,10 @@
 #include "Parser.h"
 #include "AST/AST.h"
 #include "CodeGen/IR/Generator.h"
+#include "CodeGen/Targets/X86.h"
 #include "Lex/Token.h"
+#include "Symbol/SymTable.h"
+#include "Symbol/Symbol.h"
 #include "error.h"
 #include <algorithm>
 #include <format>
@@ -15,7 +18,7 @@
 using Node = AST::Node;
 
 Parser::Parser(Scanner& scanner)
-	: scanner(scanner), IRGen(symTable)
+	: scanner(scanner)
 {}
 
 void Parser::parse()
@@ -23,9 +26,8 @@ void Parser::parse()
 	// Scan the first token
 	scanner.scan();
 
-	auto ast = block();
-	IRGen(ast);
-	
+	block();
+
 	IRGen.debug();
 }
 
@@ -34,24 +36,42 @@ void Parser::panic(std::string message) const
 	error::fatal(message, scanner.getFileName(), scanner.getLine());
 }
 
-AST Parser::block()
-{
-	std::vector<std::unique_ptr<Node>> stats;
 
+
+void Parser::flowControl()
+{
+	match(Token::Type::If, "if");
+	match(Token::Type::OpenParen, "(");
+
+	auto compExp = expression(0);
+	
+	match(Token::Type::CloseParen, ")");
+		
+}
+
+void Parser::block()
+{
 	match(Token::Type::OpenBrace, "{");
+
+	// Save previous scope
+	auto lastScope = symTable;
+	// Create a new scope
+	symTable = SymTable(&lastScope);
 
 	while (scanner.peek().getType() != Token::Type::CloseBrace)
 	{
 		if (scanner.eof())
 			panic("unexpected EOF");
-		
-		auto stat = statement();
-		if (stat)
-			stats.push_back(std::move(stat));
+
+		auto s = statement();
+		if (s)
+			IRGen.genExp(AST(std::move(s)), &symTable);
 	}
 
-	auto root = std::make_unique<AST::Node>(std::move(stats));
-	return AST(std::move(root));
+	// Eat the closing brace
+	match(Token::Type::CloseBrace, "}");
+	// Restore previous scope
+	symTable = lastScope;
 }
 
 std::unique_ptr<Node> Parser::statement()
@@ -64,10 +84,12 @@ std::unique_ptr<Node> Parser::statement()
 		// East the semi
 		matchSemi();
 		break;
+	case Token::Type::OpenBrace:
+		block();
+		break;
 	case Token::Type::Int:
-		// Will be nullptr if declaration ended up not being an
-		// assign as well.
-		return varDeclare();
+		varDeclare();
+		break;
 	default:
 		auto exp = expression(0);
 		// Eat the trailing semi from the expression
@@ -78,7 +100,7 @@ std::unique_ptr<Node> Parser::statement()
 	return nullptr;
 }
 
-std::unique_ptr<Node> Parser::varDeclare()
+void Parser::varDeclare()
 {
 	// Match correct sequence of tokens
 	match(Token::Type::Int, "int");
@@ -87,16 +109,14 @@ std::unique_ptr<Node> Parser::varDeclare()
 
 	// Make sure the symbol doesn't already exist
 	if (not symTable.exists(ident.getIdent()))
-		symTable.insert(ident.getIdent());
+		symTable.insert(Symbol(ident.getIdent(), Symbol::Type::Local));
 	else
 		panic(std::format("variable '{}' already declared", ident.getIdent()));
-
-	return nullptr;
 }
 
 std::unique_ptr<Node> Parser::primary()
 {	
-	auto t = scanner.peek();
+	auto t = scanner.next();
 
 	switch (t.getType())
 	{
@@ -108,6 +128,12 @@ std::unique_ptr<Node> Parser::primary()
 			panic(std::format("variable '{}' has not been declared", t.getIdent()));
 		return std::make_unique<Node>(AST::Type::Ident, t.getIdent());
 	default:
+		if (unaryOpTable.contains(t.getType()))
+		{
+			auto [_, rbp] = prefixPrecedence(t);
+			auto op = tokenToUnOpType(t);
+			return std::make_unique<Node>(op, expression(rbp));
+		}
 		panic(std::format("expected expression but got '{}' instead", t.getText()));
 	}
 }
@@ -115,9 +141,6 @@ std::unique_ptr<Node> Parser::primary()
 std::unique_ptr<Node> Parser::expression(int prevPrec)
 {
 	auto left = primary();
-	
-	// Scan the operator token
-	scanner.scan();
 
 	if (scanner.peek().getType() == Token::Type::Semi)
 		return left;
@@ -133,12 +156,12 @@ std::unique_ptr<Node> Parser::expression(int prevPrec)
 		if (lbp < prevPrec)
 			break;
 
-		scanner.scan(); // Bump past operator
+		scanner.next(); // Bump past operator1
 		auto right  = expression(rbp);
 
 		// If this is an assignment, check the left side is an lvalue
 		// and swap the nodes (needed for the generator).
-		if (op.getType() == Token::Type::Equals)
+		if (op.getType() == Token::Type::Assign)
 		{
 			if (left->type != AST::Type::Ident)
 				panic("invalid lvalue");
@@ -160,8 +183,16 @@ std::pair<int, int> Parser::infixPrecedence(const Token& t) const
 	
 	switch (t.getType())
 	{
-	case Type::Equals:
+	case Type::Assign:
 		return std::make_pair(2, 1);
+	case Type::Equal:
+	case Type::NotEqual:
+		return std::make_pair(4, 5);
+	case Type::Less:
+	case Type::Greater:
+	case Type::LessEqual:
+	case Type::GreaterEqual:
+		return std::make_pair(6, 7);
 	case Type::Plus:
 	case Type::Minus:
 		return std::make_pair(10, 11);
@@ -169,27 +200,32 @@ std::pair<int, int> Parser::infixPrecedence(const Token& t) const
 	case Type::Slash:
 		return std::make_pair(12, 13);
 	default:
-		panic(std::format("invalid operator '{}'", t.getText()));
+		panic(std::format("not a binary operator '{}'", t.getText()));
+	}
+}
+
+std::pair<int, int> Parser::prefixPrecedence(const Token& t) const
+{
+	using Type = Token::Type;
+	
+	switch (t.getType())
+	{
+	case Type::Not:
+	case Type::Minus:
+		return std::make_pair(0, 20);
+	default:
+		panic(std::format("not a unary operator '{}'", t.getText()));
 	}
 }
 
 AST::Type Parser::tokenToBinOpType(const Token& t) const
 {
-	switch (t.getType())
-	{
-	case Token::Type::Equals:
-		return AST::Type::Assign;
-	case Token::Type::Plus:
-		return AST::Type::Add;
-	case Token::Type::Minus:
-		return AST::Type::Subtract;
-	case Token::Type::Star:
-		return AST::Type::Multiply;
-	case Token::Type::Slash:
-		return AST::Type::Divide;
-	default:
-		throw std::runtime_error("bad operator");
-	}
+	return binOpTable.at(t.getType());
+}
+
+AST::Type Parser::tokenToUnOpType(const Token& t) const
+{
+	return unaryOpTable.at(t.getType());
 }
 
 void Parser::match(Token::Type type, const std::string& expected)

@@ -7,6 +7,11 @@ SymTable::SymTable(SymTable* prev)
 	: prev(prev)
 {}
 
+std::unordered_map<std::string, Symbol>& SymTable::getSymbols()
+{
+	return table;
+}
+
 void SymTable::insert(Symbol s)
 {
 	if (exists(s.getName()))
@@ -17,10 +22,28 @@ void SymTable::insert(Symbol s)
 
 Symbol SymTable::lookup(const std::string& name) const
 {
-	return table.at(name);
+	auto head = this;
+	
+	while (head)
+	{
+		if (head->table.contains(name))
+			return head->table.at(name);
+		head = head->prev;
+	}
+	
+	throw std::runtime_error("symbol does not exist");
 }
 
 bool SymTable::exists(const std::string& name) const
 {
-	return table.contains(name);
+	auto head = this;
+	
+	while (head)
+	{
+		if (head->table.contains(name))
+			return true;
+		head = head->prev;
+	}
+	
+	return false;
 }

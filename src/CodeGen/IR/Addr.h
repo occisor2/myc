@@ -18,7 +18,7 @@ public:
 	};
 
 	std::string name;
-	int constant;
+	int constant = 0;
 
 	Addr();
 	explicit Addr(int constant);
@@ -30,7 +30,7 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const Addr& t);
 
 private:
-	Type type{};
+	Type type = Type::Constant;
 	bool temp = false;
 };
 

@@ -3,41 +3,35 @@
 #include "Instruct.h"
 #include "Addr.h"
 #include "Symbol/SymTable.h"
+#include "Symbol/Symbol.h"
 #include <charconv>
 #include <iostream>
 #include <string>
+#include <system_error>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 using namespace IR;
 
-Generator::Generator(SymTable& symTable)
-	: symTable(symTable)
+Generator::Generator()
 {}
 
-void Generator::operator()(const AST& ast)
+void Generator::genExp(const AST& ast, SymTable* symTable)
 {
-	block(ast);
-}
-
-std::vector<Instruct> Generator::getLines() const
-{
-	return lines;
-}
-
-void Generator::block(const AST& block)
-{
-	auto& statements = block.root->block;
-
-	for (auto& s : statements)
-		expression(s.get());
+	this->symTable = symTable;
+	expression(ast.root.get());
 }
 
 Addr Generator::makeTemp()
 {
+	// Generate a unique number everytime
+	static auto lastNum = 0;
 	// Generate a temporary symbol with a number as a name. User
 	// declared variables can't start with numbers, so this should
 	// prevent clashses.
-	auto temp = Symbol(std::to_string(lines.size()));
-	symTable.insert(temp);
+	auto temp = Symbol(std::to_string(lastNum++), Symbol::Type::Temp);
+	symTable->insert(temp);
 	return Addr(temp.getName(), true);
 }
 
@@ -60,7 +54,14 @@ Addr Generator::expression(const AST::Node* n)
 	case AST::Type::Subtract:
 	case AST::Type::Multiply:
 	case AST::Type::Divide:
+	case AST::Type::Equal:
+	case AST::Type::NotEqual:
+	case AST::Type::Greater:
+	case AST::Type::GreaterEqual:
 		return bin(n->type, left, right);
+	case AST::Type::Neg:
+	case AST::Type::Not:
+		return unary(n->type, left);
 	default:
 		throw std::runtime_error("bad operator");
 	}
@@ -76,6 +77,16 @@ Addr Generator::bin(AST::Type type, Addr left, Addr right)
 	auto newInst = Instruct(op, left, right, result);
 	lines.push_back(newInst);
 
+	return result;
+}
+
+Addr Generator::unary(AST::Type type, Addr arg1)
+{
+	Instruct::Operator op = typeTable.at(type);
+	auto result = makeTemp();
+	auto newInst = Instruct(op, result, arg1);
+	lines.push_back(newInst);
+	
 	return result;
 }
 

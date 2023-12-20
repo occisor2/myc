@@ -17,25 +17,30 @@ class Generator
 		{AST::Type::Subtract, Instruct::Operator::Sub},
 		{AST::Type::Multiply, Instruct::Operator::Mul},
 		{AST::Type::Divide, Instruct::Operator::Div},
-		{AST::Type::Assign, Instruct::Operator::Assign}
+		{AST::Type::Assign, Instruct::Operator::Assign},
+		{AST::Type::Equal, Instruct::Operator::Equal},
+		{AST::Type::Not, Instruct::Operator::Not},
+		{AST::Type::NotEqual, Instruct::Operator::NotEqual},
+		{AST::Type::Greater, Instruct::Operator::Greater},
+		{AST::Type::GreaterEqual, Instruct::Operator::GreaterEqual},
+		{AST::Type::Less, Instruct::Operator::Less},
+		{AST::Type::LessEqual, Instruct::Operator::LessEqual},
 	};
 	
 public:
-	Generator(SymTable& symTable);
-	
-	void operator()(const AST& ast);
-	std::vector<Instruct> getLines() const;
+	Generator();
 
+	void genExp(const AST& ast, SymTable* symTable);
 	void debug();
 
 private:
-	SymTable& symTable;
+	SymTable* symTable;
 	std::vector<Instruct> lines;
-
-	void block(const AST& ast);
+	
 	Addr makeTemp();
 	Addr expression(const AST::Node* n);
-	Addr bin(AST::Type type, Addr left, Addr right);
+	Addr bin(AST::Type type, Addr left, Addr right); 
+	Addr unary(AST::Type type, Addr arg1);
 	Addr assign(Addr dest, Addr arg1);
 };
 

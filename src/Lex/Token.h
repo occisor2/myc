@@ -17,9 +17,19 @@ public:
 		Semi,
 		Ident,
 		Int,
-		Equals,
+		Assign,
 		OpenBrace,
-		CloseBrace
+		CloseBrace,
+		OpenParen,
+		CloseParen,
+		Not,
+		Equal,
+		NotEqual,
+		Less,
+		Greater,
+		LessEqual,
+		GreaterEqual,
+		If
 	};
 
 	explicit Token(Type type);

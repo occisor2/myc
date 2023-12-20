@@ -18,6 +18,13 @@ Token Scanner::scan()
 	return current;
 }
 
+Token Scanner::next()
+{
+	auto t = current;
+	scan();
+	return t;
+}
+
 Token Scanner::getNext()
 {
 	// Check if a token was putback
@@ -31,6 +38,7 @@ Token Scanner::getNext()
 	if (skipWhitespace())
 	{	
 		char c = code.get();
+		char nextChar;
 		
 		switch (c)
 		{
@@ -44,12 +52,38 @@ Token Scanner::getNext()
 			return Token(Type::Slash, std::string(1, c));
 		case ';':
 			return Token(Type::Semi, std::string(1, c));
-		case '=':
-			return Token(Type::Equals, std::string(1, c));
 		case '{':
 			return Token(Type::OpenBrace, std::string(1, c));
 		case '}':
-			return Token(Type::CloseBrace, std::string(1, c));			
+			return Token(Type::CloseBrace, std::string(1, c));
+		case '(':
+			return Token(Type::OpenParen, std::string(1, c));
+		case ')':
+			return Token(Type::CloseParen, std::string(1, c));
+		case '=':
+			nextChar = code.get();
+			if ('=' == nextChar)
+				return Token(Type::Equal, "==");
+			code.putback(nextChar);
+			return Token(Type::Assign, std::string(1, c));
+		case '!':
+			nextChar = code.get();
+			if ('=' == nextChar)
+				return Token(Type::NotEqual, "!=");
+			code.putback(nextChar);
+			return Token(Type::Not, std::string(1, c));	
+		case '>':
+			nextChar = code.get();
+			if ('=' == nextChar)
+				return Token(Type::GreaterEqual, ">=");
+			code.putback(nextChar);
+			return Token(Type::Greater, std::string(1, c));
+		case '<':
+			nextChar = code.get();
+			if ('=' == nextChar)
+				return Token(Type::LessEqual, "<=");
+			code.putback(nextChar);
+			return Token(Type::Less, std::string(1, c));
 		default:
 			if (std::isalpha(static_cast<unsigned char>(c)) || '_' == c)
 			{

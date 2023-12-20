@@ -12,7 +12,8 @@ class Scanner
 	static constexpr auto maxIdentLen = 32;
 
 	const std::unordered_map<std::string, Token::Type> keywords = {
-		{"int", Token::Type::Int}
+		{"int", Token::Type::Int},
+		{"if", Token::Type::If}
 	};
 	
 public:
@@ -22,6 +23,7 @@ public:
 	 * Scans the next token
 	 */
 	Token scan();
+	Token next();
 	Token peek() const;
 	void putback(Token t);
 	bool eof() const;

@@ -13,7 +13,19 @@ class Instruct
 public:
 	enum class Operator
 	{
-		Add, Sub, Mul, Div, Assign
+		Add,
+		Sub,
+		Mul,
+		Div,
+		Assign,
+		Equal,
+		Neg,
+		Not,
+		NotEqual,
+		Greater,
+		GreaterEqual,
+		Less,
+		LessEqual
 	};
 
 	const std::unordered_map<Operator, std::string> opTextTable = {
@@ -21,7 +33,16 @@ public:
 		{Operator::Sub, "sub"},
 		{Operator::Mul, "mul"},
 		{Operator::Div, "div"},
-		{Operator::Assign, "="}
+		{Operator::Assign, "="},
+		{Operator::Equal, "=="},
+		{Operator::Neg, "neg"},
+		{Operator::Not, "not"},
+		{Operator::NotEqual, "!="},
+		{Operator::Greater, ">"},
+		{Operator::GreaterEqual, ">="},
+		{Operator::Less, "<"},
+		{Operator::LessEqual, "<="},
+		
 	};
 
 	// Binary operator

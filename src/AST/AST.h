@@ -18,6 +18,14 @@ public:
 		Subtract,
 		Multiply,
 		Divide,
+		Equal,
+		Less,
+		Greater,
+		LessEqual,
+		GreaterEqual,
+		Not,
+		NotEqual,
+		Neg
 	};
 
 	class Node
