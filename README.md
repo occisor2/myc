@@ -27,7 +27,7 @@ MyC does not emit actual assembly yet, but emit three address code.
 
 - integer variable declarations (no assignment lists, yet)
 - assigments
-- +, -, *, /, =, >, <, >=, <=, !, !=, -(unary) operators
+- +, -, *, /, =, ==, >, <, >=, <=, !, !=, -(unary) operators
 - nested statement blocks "{ ... }"
 
 ## Next Feature in Progress
