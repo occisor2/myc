@@ -11,9 +11,10 @@ _Compilers - Principles, Techniques, and Tools_
 
 ## Project Goals
 - Be able to compile the SubC compiler
-- Produce assembly code for at least two platforms (one being x86)
-- Implement some machine idependant code optimimizations: constant
-  folding, common sub-expressions, etc.
+- Produce assembly code for at least two platforms (one being x86,
+  next one possibly being a vm I write)
+- Implement some machine idependent code optimimizations: constant
+  folding, etc.
 - Implement a good register allocator
 - Produce useful warning and error messages
 - Do not rely on another C compiler's runtime (i.e write a crt0)
@@ -22,13 +23,17 @@ The project is in its infancy, so expect many sweeping changes.
 
 ## Current Features
 
-The latest commits do not produce assembly code but IR code. This is
-because I am trying to implement statements as fast as possible, so I
-have less refactoring to do later.
+MyC does not emit actual assembly yet, but emit three address code.
 
 - integer variable declarations (no assignment lists, yet)
 - assigments
-- +, -, *, /, = binary operators with correct precedance.
+- +, -, *, /, =, >, <, >=, <=, !, !=, -(unary) operators
+- nested statement blocks "{ ... }"
+
+## Next Feature in Progress
+
+Currently working on if statements. Then, I plan to generate actual
+X86 assembly.
 
 ## Build Instructions
 
