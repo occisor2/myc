@@ -10,8 +10,6 @@
 #+OPTIONS: toc:2
 #+OPTIONS: p:t
 
-* MyC
-
 This is a project I'm using to teach myself about compilers and get a
 better understanding of the C language.
 
