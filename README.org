@@ -1,0 +1,25 @@
+#+TITLE:  MyC
+#+AUTHOR: Russell Smith
+#+EMAIL:  russell.smith7502@gmail.com
+#+DESCRIPTION: This is the README for the MyC compiler
+#+KEYWORDS: C, compiler, MyC, languages
+#+LANGUAGE:  en
+
+#+OPTIONS: H:4
+#+OPTIONS: num:nil
+#+OPTIONS: toc:2
+#+OPTIONS: p:t
+
+* MyC
+
+This is a project I'm using to teach myself about compilers and get a
+better understanding of the C language.
+
+* Building
+
+CMake is used to build the project. The default presets use ninja.
+
+#+BEGIN_SRC Shell
+mkdir build && cd build
+cmake .. --build --preset release
+#+END_SRC
