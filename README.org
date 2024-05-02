@@ -17,7 +17,7 @@ better understanding of the C language.
 
 CMake is used to build the project. The default presets use ninja.
 
-#+BEGIN_SRC Shell
+#+BEGIN_SRC shell
 mkdir build && cd build
 cmake .. --build --preset release
 #+END_SRC
