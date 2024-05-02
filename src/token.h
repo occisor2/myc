@@ -7,14 +7,14 @@ class Token
 public:
 	enum class Type : size_t
 	{
-		open_paren,
+		eof,
+		number,
 		minus,
 		plus,
 		slash,
 		star,
-		number, // at and above this line, members need ordering for parser
+		open_paren,
 		close_paren,
-		eof
 	};
 
 	const Type type;

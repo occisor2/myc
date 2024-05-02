@@ -1,4 +1,4 @@
-#include "scanner.h"
+#include "parser.h"
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -27,16 +27,8 @@ int main(int argc, char* argv[])
 	}
 
 	auto sourceCode = readFile(argv[1]);
-	Scanner scanner(sourceCode);
-
-	while (not scanner.isEmpty())
-	{
-		auto t = scanner.scan();
-		auto value = sourceCode.substr(t.pos, t.size);
-		std::cout << value << " ";
-	}
-
-	std::cout << std::endl;
+	Parser p(sourceCode);
+	p.parse();
 	
 	return EXIT_SUCCESS;
 }

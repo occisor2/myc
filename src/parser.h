@@ -1,7 +1,6 @@
 #pragma once
 
-#include "ast/ast.h"
-#include "ast/expr.h"
+#include "ast.h"
 #include "scanner.h"
 #include "token.h"
 #include <memory>
@@ -13,7 +12,7 @@ public:
 	Parser() = delete;
 	Parser(std::string_view sourceCode);
 
-	AST parse();
+	void parse();
 	
 private:
 	std::string_view sourceCode;
@@ -24,12 +23,16 @@ private:
 	void error(std::string_view msg);
 	std::string getTokenText(Token token);
 
-	void next();
+	Token next();
 	void consume(Token::Type type, std::string_view errmsg);
 
-	// requires ordering for parser
+	/*
+	 * All methods and data below mostly belong to the Pratt Parser
+	 * implementation.
+	 */
 	enum class Precedence : int
 	{
+		// requires ordering for parser
 		None,
 		Assignment,  // =
 		Or,          // or
@@ -43,18 +46,28 @@ private:
 		Primary
 	};
 
-	using ParseFn = std::unique_ptr<Expr>(Parser::*)();
-	struct RuleEntry
+	std::unique_ptr<Expr> parseExpression();
+	std::unique_ptr<Expr> parsePrecedence(Precedence precedence);
+	std::unique_ptr<Expr> primary();
+	std::unique_ptr<Expr> binary(std::unique_ptr<Expr> left);
+
+	using PrefixFn = std::unique_ptr<Expr>(Parser::*)();
+	using InfixFn = std::unique_ptr<Expr>(Parser::*)(std::unique_ptr<Expr>);
+	struct Rule
 	{
-		ParseFn prefix;
-		ParseFn infix;
+		PrefixFn prefix;
+		InfixFn infix;
 		Precedence prec;
 	};
 
-	static constexpr RuleEntry table[] = {
-		{nullptr, nullptr, Precedence::None}
+	static constexpr Rule table[] = {
+		{nullptr,          nullptr,         Precedence::None},    // eof
+		{&Parser::primary, nullptr,         Precedence::Primary}, // num
+		{nullptr,          &Parser::binary, Precedence::Term},    // sub
+		{nullptr,          &Parser::binary, Precedence::Term},    // add
+		{nullptr,          &Parser::binary, Precedence::Factor},  // div
+		{nullptr,          &Parser::binary, Precedence::Factor},  // mul
 	};
 
-	RuleEntry getRuleEntry(Token::Type type);
-	std::unique_ptr<Expr> parseExpression(Precedence prec);
+	Rule getRule(Token::Type type) const;
 };

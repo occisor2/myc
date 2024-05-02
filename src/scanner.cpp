@@ -1,6 +1,7 @@
 #include "scanner.h"
 #include <cassert>
 #include <cctype>
+#include <iostream>
 #include <string_view>
 
 using TokType = Token::Type;
@@ -60,6 +61,7 @@ void Scanner::skipWhitespace()
 		{
 		case '\n':
 			line++;
+			[[fallthrough]];
 		case ' ':
 		case '\r':
 		case '\t':
