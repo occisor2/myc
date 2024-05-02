@@ -13,11 +13,24 @@
 This is a project I'm using to teach myself about compilers and get a
 better understanding of the C language.
 
+The short term goal of this project is to convert a very small subset
+of C (only integers. no structs, etc.) to native x86 assembly.
+Hopefully, I can find enough time to expand on this.
+
 * Building
 
-CMake is used to build the project. The default presets use ninja.
+CMake is used to build the project. The default presets uses ninja.
 
 #+BEGIN_SRC shell
 mkdir build && cd build
 cmake .. --build --preset release
 #+END_SRC
+
+* Project Status
+
+Here are the current short term goals and which have been completed.
+
+- [X] basic expression parsing
+- [ ] basic statements
+- [ ] local variable declarations
+- [ ] main function
