@@ -1,6 +1,8 @@
 #include "scanner.h"
+#include "token.h"
 #include <cassert>
 #include <cctype>
+#include <cstdlib>
 #include <iostream>
 #include <string_view>
 
@@ -26,10 +28,17 @@ Token Scanner::scan()
 	case '/': return getToken(TokType::slash);
 	case '*': return getToken(TokType::star);
 	case '(': return getToken(TokType::open_paren);
-	case ')':  return getToken(TokType::close_paren);
+	case ')': return getToken(TokType::close_paren);
+	case ';': return getToken(TokType::Semi);
+	case '=': return getToken(TokType::Equal);
+	case '{': return getToken(TokType::OpenBrace);
+	case '}': return getToken(TokType::OpenBrace);
 	}
-	
-	return scanNumber();
+
+	if (isAlpha(c)) return scanIdent();
+	if (isDigit(c)) return scanNumber();
+
+	return getToken(TokType::Error);
 }
 
 bool Scanner::isEmpty() const
@@ -80,8 +89,31 @@ Token Scanner::getToken(Token::Type type)
 
 Token Scanner::scanNumber()
 {
-	while (not isEmpty() && std::isdigit(peek()))
+	while (not isEmpty() && isDigit(peek()))
 		next();
 
 	return getToken(TokType::number);
+}
+
+Token Scanner::scanIdent()
+{
+	// extremely inefficient, will optimize when compiler grows
+	while (not isEmpty() && (isAlpha(peek()) || isDigit(peek())))
+		next();
+
+	auto text = std::string(sourceCode.substr(start, current));
+	if (keywords.contains(text))
+		return getToken(keywords.at(text));
+
+	return getToken(TokType::Indent);
+}
+
+bool Scanner::isAlpha(char c) const
+{
+	return std::isalpha(static_cast<unsigned char>(c)) || '_' == c;
+}
+
+bool Scanner::isDigit(char c) const
+{
+	return std::isdigit(static_cast<unsigned char>(c));
 }

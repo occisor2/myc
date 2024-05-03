@@ -14,7 +14,16 @@ public:
 		slash,
 		star,
 		open_paren,
+		// don't change order above this
 		close_paren,
+		Semi,
+		Equal,
+		OpenBrace,
+		CloseBrace,
+		Indent,
+		Error,
+		// keywords
+		Int
 	};
 
 	const Type type;

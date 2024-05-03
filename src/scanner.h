@@ -2,7 +2,9 @@
 
 #include "token.h"
 #include <cstddef>
+#include <string>
 #include <string_view>
+#include <unordered_map>
 
 class Scanner
 {
@@ -24,4 +26,12 @@ private:
 	void skipWhitespace();
 	Token getToken(Token::Type type);
 	Token scanNumber();
+	Token scanIdent();
+	bool isAlpha(char c) const;
+	bool isDigit(char c) const;
+
+	// will be replaced by a trie eventually
+	std::unordered_map<std::string, Token::Type> keywords = {
+		{"int", Token::Type::Int}
+	};
 };

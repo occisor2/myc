@@ -1,4 +1,6 @@
-#include "parser.h"
+#include "scanner.h"
+#include "token.h"
+#include <getopt.h>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -18,17 +20,51 @@ std::string readFile(const std::string& path)
 	return buff.str();
 }
 
+static constexpr auto helpMsg = "Usage: myc [options] file...";
+
 int main(int argc, char* argv[])
 {
-	if (argc != 2)
+	// parse command line arguments
+	bool dumpTokens = false;
+	[[maybe_unused]]
+	bool dumpAST = false;
+	std::string filePath;
+
+	int opt;
+	while ((opt = getopt(argc, argv, "-ta")) != -1)
 	{
-		std::cout << "usage: " << argv[0] << " [file path]" << std::endl;
+		switch (opt)
+		{
+		case 't':
+			dumpTokens = true;
+			break;
+		case 'a':
+			dumpAST = true;
+			break;
+		case 1:
+			filePath = optarg;
+			break;
+		default:
+			std::cout << helpMsg << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+
+	// make sure file path was supplied
+	if (filePath.empty())
+	{
+		std::cout << helpMsg << std::endl;
 		return EXIT_FAILURE;
 	}
 
-	auto sourceCode = readFile(argv[1]);
-	Parser p(sourceCode);
-	p.parse();
-	
+	auto sourceCode = readFile(filePath);
+
+	if (dumpTokens)
+	{
+		Scanner s(sourceCode);
+		for (Token t = s.scan(); not s.isEmpty(); t = s.scan())
+			std::cout << sourceCode.substr(t.pos, t.size) << std::endl;
+	}
+
 	return EXIT_SUCCESS;
 }
