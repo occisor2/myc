@@ -17,8 +17,8 @@ using TokType = Token::Type;
 
 Parser::Parser(std::string_view sourceCode)
 	: sourceCode(sourceCode), scanner(sourceCode),
-	  prev(Token::Type::eof, 0, 0 ,0),
-	  current(Token::Type::eof, 0, 0 ,0)
+	  prev(Token::Type::Eof, 0, 0 ,0),
+	  current(Token::Type::Eof, 0, 0 ,0)
 {}
 
 void Parser::parse()
@@ -114,16 +114,16 @@ std::unique_ptr<Expr> Parser::binary(std::unique_ptr<Expr> left)
 	OpType opType{};
 	switch (op.type)
 	{
-	case Token::Type::minus:
+	case Token::Type::Minus:
 		opType = OpType::Sub;
 		break;
-	case Token::Type::plus:
+	case Token::Type::Plus:
 		opType = OpType::Add;
 		break;
-	case Token::Type::slash:
+	case Token::Type::Slash:
 		opType = OpType::Div;
 		break;
-	case Token::Type::star:
+	case Token::Type::Star:
 		opType = OpType::Mul;
 		break;
 	default: assert(((void)"not an infix operator", false));

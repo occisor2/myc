@@ -7,15 +7,15 @@ class Token
 public:
 	enum class Type : size_t
 	{
-		eof,
-		number,
-		minus,
-		plus,
-		slash,
-		star,
-		open_paren,
+		Eof,
+		Number,
+		Minus,
+		Plus,
+		Slash,
+		Star,
+		OpenParen,
 		// don't change order above this
-		close_paren,
+		CloseParen,
 		Semi,
 		Equal,
 		OpenBrace,

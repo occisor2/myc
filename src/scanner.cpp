@@ -2,8 +2,6 @@
 #include "token.h"
 #include <cassert>
 #include <cctype>
-#include <cstdlib>
-#include <iostream>
 #include <string_view>
 
 using TokType = Token::Type;
@@ -17,18 +15,18 @@ Token Scanner::scan()
 	skipWhitespace();
 	start = current;
 	if (isEmpty())
-		return getToken(TokType::eof);
+		return getToken(TokType::Eof);
 	
 	char c = next();
 
 	switch (c)
 	{
-	case '-': return getToken(TokType::minus);
-	case '+': return getToken(TokType::plus);
-	case '/': return getToken(TokType::slash);
-	case '*': return getToken(TokType::star);
-	case '(': return getToken(TokType::open_paren);
-	case ')': return getToken(TokType::close_paren);
+	case '-': return getToken(TokType::Minus);
+	case '+': return getToken(TokType::Plus);
+	case '/': return getToken(TokType::Slash);
+	case '*': return getToken(TokType::Star);
+	case '(': return getToken(TokType::OpenParen);
+	case ')': return getToken(TokType::CloseParen);
 	case ';': return getToken(TokType::Semi);
 	case '=': return getToken(TokType::Equal);
 	case '{': return getToken(TokType::OpenBrace);
@@ -92,7 +90,7 @@ Token Scanner::scanNumber()
 	while (not isEmpty() && isDigit(peek()))
 		next();
 
-	return getToken(TokType::number);
+	return getToken(TokType::Number);
 }
 
 Token Scanner::scanIdent()

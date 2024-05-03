@@ -22,10 +22,10 @@ Token& Token::operator=(Token const& t)
 
 bool Token::isNumber() const
 {
-	return Type::number == type;
+	return Type::Number == type;
 }
 
 bool Token::isEof() const
 {
-	return Type::eof == type;
+	return Type::Eof == type;
 }
