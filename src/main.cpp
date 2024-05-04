@@ -1,3 +1,4 @@
+#include "parser.h"
 #include "scanner.h"
 #include "token.h"
 #include <getopt.h>
@@ -26,7 +27,6 @@ int main(int argc, char* argv[])
 {
 	// parse command line arguments
 	bool dumpTokens = false;
-	[[maybe_unused]]
 	bool dumpAST = false;
 	std::string filePath;
 
@@ -64,6 +64,11 @@ int main(int argc, char* argv[])
 		Scanner s(sourceCode);
 		for (Token t = s.scan(); not s.isEmpty(); t = s.scan())
 			std::cout << sourceCode.substr(t.pos, t.size) << std::endl;
+	}
+	if (dumpAST)
+	{
+		Parser p(sourceCode);
+		p.parse();
 	}
 
 	return EXIT_SUCCESS;

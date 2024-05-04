@@ -1,23 +1,47 @@
 #pragma once
 
+#include "analysis.h"
 #include <memory>
-#include <variant>
 
-class NumLit;
-class BinExp;
+// fixes recursive include
+class NodeVisitor;
 
-using Expr = std::variant<NumLit, BinExp>;
+class NodeBase
+{
+public:
+	virtual void accept(NodeVisitor& visitor) = 0;
+};
 
-class NumLit
+class Expr : public NodeBase
+{
+public:
+	enum class Type
+	{
+		NumLit,
+		Bin,
+	};
+
+	Expr() = delete;
+	Expr(Type type);
+	virtual ~Expr() {}
+
+	void accept(NodeVisitor& visitor) override;
+
+	Type type;
+};
+
+class NumLit : public Expr
 {
 public:
 	NumLit() = delete;
 	NumLit(int numLit);
 
+	void accept(NodeVisitor& visitor);
+
 	int numLit;
 };
 
-class BinExp
+class BinExp : public Expr
 {
 public:
 	enum class OpType
@@ -30,6 +54,8 @@ public:
 
 	BinExp() = delete;
 	BinExp(OpType opType, std::unique_ptr<Expr> left, std::unique_ptr<Expr> right);
+
+	void accept(NodeVisitor& visitor);
 
 	OpType opType;
 	std::unique_ptr<Expr> left;

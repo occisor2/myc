@@ -5,6 +5,7 @@
 class Token
 {
 public:
+	// don't change order, needed by parser
 	enum class Type : size_t
 	{
 		Eof,
@@ -14,7 +15,6 @@ public:
 		Slash,
 		Star,
 		OpenParen,
-		// don't change order above this
 		CloseParen,
 		Semi,
 		Equal,

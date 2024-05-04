@@ -46,6 +46,11 @@ private:
 		Primary
 	};
 
+	// If these functions get called, there is a programmer error in the Pratt
+	// parser.
+	std::unique_ptr<Expr> badToken();
+	std::unique_ptr<Expr> badTokenBin(std::unique_ptr<Expr>);
+
 	std::unique_ptr<Expr> parseExpression();
 	std::unique_ptr<Expr> parsePrecedence(Precedence precedence);
 	std::unique_ptr<Expr> primary();
@@ -61,12 +66,21 @@ private:
 	};
 
 	static constexpr Rule table[] = {
-		{nullptr,          nullptr,         Precedence::None},    // eof
-		{&Parser::primary, nullptr,         Precedence::Primary}, // num
-		{nullptr,          &Parser::binary, Precedence::Term},    // sub
-		{nullptr,          &Parser::binary, Precedence::Term},    // add
-		{nullptr,          &Parser::binary, Precedence::Factor},  // div
-		{nullptr,          &Parser::binary, Precedence::Factor},  // mul
+		{nullptr,            nullptr,              Precedence::None},    // eof
+		{&Parser::primary,   nullptr,              Precedence::Primary}, // num
+		{nullptr,            &Parser::binary,      Precedence::Term},    // sub
+		{nullptr,            &Parser::binary,      Precedence::Term},    // add
+		{nullptr,            &Parser::binary,      Precedence::Factor},  // div
+		{nullptr,            &Parser::binary,      Precedence::Factor},  // mul
+		{&Parser::badToken,  &Parser::badTokenBin, Precedence::None},    // (
+		{&Parser::badToken,  &Parser::badTokenBin, Precedence::None},    // )
+		{&Parser::badToken,  &Parser::badTokenBin, Precedence::None},    // ;
+		{&Parser::badToken,  &Parser::badTokenBin, Precedence::None},    // =
+		{&Parser::badToken, &Parser::badTokenBin, Precedence::None},    // {
+		{&Parser::badToken, &Parser::badTokenBin, Precedence::None},    // }
+		{&Parser::badToken, &Parser::badTokenBin, Precedence::None},    // ident
+		{&Parser::badToken, &Parser::badTokenBin, Precedence::None},    // error
+		{&Parser::badToken, &Parser::badTokenBin, Precedence::None},    // int
 	};
 
 	Rule getRule(Token::Type type) const;

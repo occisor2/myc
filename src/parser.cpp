@@ -26,8 +26,7 @@ void Parser::parse()
 	next();
 	auto exp = parseExpression();
 	PrintAST p;
-	p.visit(exp);
-	std::cout << std::endl;
+	p.visit(*exp);
 }
 
 void Parser::error(std::string_view msg)
@@ -59,6 +58,16 @@ void Parser::consume(Token::Type type, std::string_view errmsg)
 Parser::Rule Parser::getRule(Token::Type type) const
 {
 	return table[static_cast<size_t>(type)];
+}
+
+std::unique_ptr<Expr> Parser::badToken()
+{
+	assert(((void)"bad token in pratt parser", false));
+}
+
+std::unique_ptr<Expr> Parser::badTokenBin(std::unique_ptr<Expr>)
+{
+	assert(((void)"bad token in pratt parser", false));
 }
 
 std::unique_ptr<Expr> Parser::parseExpression()
@@ -99,7 +108,7 @@ std::unique_ptr<Expr> Parser::primary()
 	if (std::errc::result_out_of_range ==  ec)
 		throw std::runtime_error("number is out of range");
 
-	return std::make_unique<Expr>(NumLit(result));
+	return std::make_unique<NumLit>(result);
 }
 
 std::unique_ptr<Expr> Parser::binary(std::unique_ptr<Expr> left)
@@ -126,8 +135,9 @@ std::unique_ptr<Expr> Parser::binary(std::unique_ptr<Expr> left)
 	case Token::Type::Star:
 		opType = OpType::Mul;
 		break;
-	default: assert(((void)"not an infix operator", false));
+	default:
+		assert(((void)"not an infix operator", false));
 	}
 
-	return std::make_unique<Expr>(BinExp(opType, std::move(left), std::move(right)));
+	return std::make_unique<BinExp>(opType, std::move(left), std::move(right));
 }

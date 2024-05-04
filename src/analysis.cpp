@@ -1,38 +1,63 @@
 #include "analysis.h"
 #include <iostream>
-#include <variant>
+#include <ostream>
 
-void PrintAST::visit(std::unique_ptr<Expr>& expr)
+PrintAST::PrintAST()
+	: depth(0)
+{}
+
+void PrintAST::visit(Expr& node)
 {
-	std::visit(*this, *expr);
+	node.accept(*this);
 }
 
-void PrintAST::operator()(NumLit& numLit)
+void PrintAST::visit(NumLit& node)
 {
-	std::cout << numLit.numLit;
+	std::cout << identString() << "Int Literal: " << node.numLit << std::endl;
 }
 
-void PrintAST::operator()(BinExp& binExp)
+void PrintAST::visit(BinExp& node)
 {
-	std::cout << "(";
-	visit(binExp.left);
+	std::cout << identString() << "Binary Expression: ";
 
-	switch (binExp.opType)
+	switch (node.opType)
 	{
 	case BinExp::OpType::Sub:
-		std::cout << '-';
+		std::cout << "-";
 		break;
 	case BinExp::OpType::Add:
-		std::cout << '+';
+		std::cout << "+";
 		break;
 	case BinExp::OpType::Div:
-		std::cout << '/';
+		std::cout << "/";
 		break;
 	case BinExp::OpType::Mul:
-		std::cout << '*';
+		std::cout << "*";
 		break;
 	}
 
-        visit(binExp.right);
-	std::cout << ")";
+	std::cout << std::endl;
+
+	enterLevel();
+	node.left->accept(*this);
+	leaveLevel();
+
+	enterLevel();
+	node.right->accept(*this);
+	leaveLevel();
+}
+
+void PrintAST::enterLevel()
+{
+	depth += indent;
+}
+
+void PrintAST::leaveLevel()
+{
+	depth -= indent;
+}
+
+std::string PrintAST::identString() const
+{
+	return std::string(depth, ' ');
 }
