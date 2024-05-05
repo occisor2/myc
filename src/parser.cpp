@@ -60,16 +60,6 @@ Parser::Rule Parser::getRule(Token::Type type) const
 	return table[static_cast<size_t>(type)];
 }
 
-std::unique_ptr<Expr> Parser::badToken()
-{
-	assert(((void)"bad token in pratt parser", false));
-}
-
-std::unique_ptr<Expr> Parser::badTokenBin(std::unique_ptr<Expr>)
-{
-	assert(((void)"bad token in pratt parser", false));
-}
-
 std::unique_ptr<Expr> Parser::parseExpression()
 {
 	return parsePrecedence(Precedence::Assignment);
