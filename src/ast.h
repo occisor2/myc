@@ -2,6 +2,7 @@
 
 #include "analysis.h"
 #include <memory>
+#include <string>
 
 // fixes recursive include
 class NodeVisitor;
@@ -12,22 +13,64 @@ public:
 	virtual void accept(NodeVisitor& visitor) = 0;
 };
 
-class Expr : public NodeBase
+class State : public NodeBase
 {
 public:
-	enum class Type
+	enum class StateType
+	{
+		Expr,
+		Decl,
+	};
+
+	State() = delete;
+	State(StateType stateType);
+	virtual ~State() {}
+
+	void accept(NodeVisitor& visitor) override;
+
+	StateType stateType;
+};
+
+class Expr : public State
+{
+public:
+	enum class ExpType
 	{
 		NumLit,
+		Ident,
 		Bin,
 	};
 
 	Expr() = delete;
-	Expr(Type type);
+	Expr(ExpType expType);
 	virtual ~Expr() {}
 
 	void accept(NodeVisitor& visitor) override;
 
-	Type type;
+	ExpType expType;
+};
+
+class Ident : public Expr
+{
+public:
+	Ident() = delete;
+	Ident(std::string name);
+
+	void accept(NodeVisitor& visitor) override;
+
+	std::string name;
+};
+
+class Decl : public State
+{
+public:
+	Decl() = delete;
+	Decl(std::unique_ptr<Ident> ident, std::unique_ptr<Expr> right);
+
+	void accept(NodeVisitor& visitor) override;
+
+	std::unique_ptr<Ident> ident;
+	std::unique_ptr<Expr> right;
 };
 
 class NumLit : public Expr

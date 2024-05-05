@@ -47,6 +47,29 @@ void PrintAST::visit(BinExp& node)
 	leaveLevel();
 }
 
+void PrintAST::visit(State& node)
+{
+	node.accept(*this);
+}
+
+void PrintAST::visit(Ident& node)
+{
+	std::cout << identString() << "Identifier: " << node.name << std::endl;
+}
+
+void PrintAST::visit(Decl& node)
+{
+	std::cout << identString() << "Var Declaration:" << std::endl;
+
+	enterLevel();
+	node.ident->accept(*this);
+	leaveLevel();
+
+	enterLevel();
+	node.right->accept(*this);
+	leaveLevel();
+}
+
 void PrintAST::enterLevel()
 {
 	depth += indent;
