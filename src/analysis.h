@@ -9,6 +9,8 @@ class BinExp;
 class State;
 class Decl;
 class Ident;
+class Compound;
+class FuncDecl;
 
 class NodeVisitor
 {
@@ -21,6 +23,8 @@ public:
 	virtual void visit(State& node) = 0;
 	virtual void visit(Ident& node) = 0;
 	virtual void visit(Decl& node) = 0;
+	virtual void visit(Compound& node) = 0;
+	virtual void visit(FuncDecl& node) = 0;
 };
 
 class PrintAST : public NodeVisitor
@@ -34,6 +38,8 @@ public:
 	void visit(State& node) override;
 	void visit(Ident& node) override;
 	void visit(Decl& node) override;
+	void visit(Compound& node) override;
+	void visit(FuncDecl& node) override;
 
 private:
 	const int indent = 2;

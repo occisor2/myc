@@ -4,6 +4,7 @@
 #include "token.h"
 #include <memory>
 #include <string>
+#include <vector>
 
 // fixes recursive include
 class NodeVisitor;
@@ -23,6 +24,7 @@ class State : public NodeBase
 public:
 	enum class StateType
 	{
+		Compound,
 		Expr,
 		Decl,
 	};
@@ -109,4 +111,27 @@ public:
 	OpType opType;
 	std::unique_ptr<Expr> left;
 	std::unique_ptr<Expr> right;
+};
+
+class Compound : public State
+{
+public:
+	Compound() = delete;
+	Compound(std::vector<std::unique_ptr<State>> statements, Token token);
+
+	void accept(NodeVisitor& visitor) override;
+
+	std::vector<std::unique_ptr<State>> statements;
+};
+
+class FuncDecl : NodeBase
+{
+public:
+	FuncDecl() = delete;
+	FuncDecl(std::unique_ptr<Ident> name, std::unique_ptr<Compound> body, Token token);
+
+	void accept(NodeVisitor& visitor) override;
+
+	std::unique_ptr<Ident> name;
+	std::unique_ptr<Compound> body;
 };

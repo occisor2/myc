@@ -70,6 +70,28 @@ void PrintAST::visit(Decl& node)
 	leaveLevel();
 }
 
+void PrintAST::visit(Compound& node)
+{
+	std::cout << indentString() << "Compund Statement" << std::endl;
+
+	for (auto& s : node.statements)
+	{
+		enterLevel();
+		s->accept(*this);
+		leaveLevel();
+	}
+}
+
+void PrintAST::visit(FuncDecl& node)
+{
+	std::cout << indentString() << "Function: ";
+	std::cout << node.name->name << "()" << std::endl;
+
+	enterLevel();
+	node.body->accept(*this);
+	leaveLevel();
+}
+
 void PrintAST::enterLevel()
 {
 	depth += indent;

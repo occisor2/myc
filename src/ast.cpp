@@ -15,6 +15,9 @@ void State::accept(NodeVisitor& visitor)
 {
 	switch (stateType)
 	{
+	case StateType::Compound:
+		static_cast<Compound*>(this)->accept(visitor);
+		break;
 	case StateType::Expr:
 		static_cast<Expr*>(this)->accept(visitor);
 		break;
@@ -81,6 +84,24 @@ BinExp::BinExp(OpType opType, std::unique_ptr<Expr> left, std::unique_ptr<Expr> 
 {}
 
 void BinExp::accept(NodeVisitor& visitor)
+{
+	visitor.visit(*this);
+}
+
+Compound::Compound(std::vector<std::unique_ptr<State>> statements, Token token)
+	: State(StateType::Compound, token), statements(std::move(statements))
+{}
+
+void Compound::accept(NodeVisitor& visitor)
+{
+	visitor.visit(*this);
+}
+
+FuncDecl::FuncDecl(std::unique_ptr<Ident> name, std::unique_ptr<Compound> body, Token token)
+	: NodeBase(token), name(std::move(name)), body(std::move(body))
+{}
+
+void FuncDecl::accept(NodeVisitor& visitor)
 {
 	visitor.visit(*this);
 }
