@@ -1,9 +1,14 @@
 #include "ast.h"
+#include "token.h"
 #include <cassert>
 #include <string>
 
-State::State(StateType stateType)
-	: stateType(stateType)
+NodeBase::NodeBase(Token token)
+	: token(token)
+{}
+
+State::State(StateType stateType, Token token)
+	: NodeBase(token), stateType(stateType)
 {}
 
 void State::accept(NodeVisitor& visitor)
@@ -19,8 +24,8 @@ void State::accept(NodeVisitor& visitor)
 	}
 }
 
-Ident::Ident(std::string name)
-	: Expr(ExpType::Ident), name(name)
+Ident::Ident(std::string name, Token token)
+	: Expr(ExpType::Ident, token), name(name)
 {}
 
 void Ident::accept(NodeVisitor& visitor)
@@ -28,8 +33,9 @@ void Ident::accept(NodeVisitor& visitor)
 	visitor.visit(*this);
 }
 
-Decl::Decl(std::unique_ptr<Ident> ident, std::unique_ptr<Expr> right)
-	: State(StateType::Decl), ident(std::move(ident)), right(std::move(right))
+Decl::Decl(std::unique_ptr<Ident> ident, std::unique_ptr<Expr> right, Token token)
+	: State(StateType::Decl, token),
+	  ident(std::move(ident)), right(std::move(right))
 {}
 
 void Decl::accept(NodeVisitor& visitor)
@@ -37,8 +43,8 @@ void Decl::accept(NodeVisitor& visitor)
 	visitor.visit(*this);
 }
 
-Expr::Expr(ExpType expType)
-	: State(StateType::Expr), expType(expType)
+Expr::Expr(ExpType expType, Token token)
+	: State(StateType::Expr, token), expType(expType)
 {}
 
 void Expr::accept(NodeVisitor& visitor)
@@ -59,8 +65,8 @@ void Expr::accept(NodeVisitor& visitor)
 	}
 }
 
-NumLit::NumLit(int numLit)
-	: Expr(ExpType::NumLit), numLit(numLit)
+NumLit::NumLit(int numLit, Token token)
+	: Expr(ExpType::NumLit, token), numLit(numLit)
 {}
 
 void NumLit::accept(NodeVisitor& visitor)
@@ -68,8 +74,9 @@ void NumLit::accept(NodeVisitor& visitor)
 	visitor.visit(*this);
 }
 
-BinExp::BinExp(OpType opType, std::unique_ptr<Expr> left, std::unique_ptr<Expr> right)
-	: Expr(ExpType::Bin), opType(opType), left(std::move(left)),
+BinExp::BinExp(OpType opType, std::unique_ptr<Expr> left, std::unique_ptr<Expr> right,
+			   Token token)
+	: Expr(ExpType::Bin, token), opType(opType), left(std::move(left)),
 	  right(std::move(right))
 {}
 

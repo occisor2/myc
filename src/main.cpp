@@ -61,13 +61,19 @@ int main(int argc, char* argv[])
 
 	if (dumpTokens)
 	{
+		std::cout << "Tokens:" << std::endl;
 		Scanner s(sourceCode);
 		for (Token t = s.scan(); not s.isEmpty(); t = s.scan())
+		{
+			// if (t.type == Token::Type::Int)
+			// 	std::cout << "yes" << std::endl;
 			std::cout << sourceCode.substr(t.pos, t.size) << std::endl;
+		}
 	}
 	if (dumpAST)
 	{
-		Parser p(sourceCode);
+		std::cout << "AST:" << std::endl;
+		Parser p(sourceCode, filePath);
 		p.parse();
 	}
 

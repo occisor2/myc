@@ -31,6 +31,6 @@ cmake .. --build --preset release
 Here are the current short term goals and which have been completed.
 
 - [X] basic expression parsing
-- [ ] basic statements
+- [X] basic statements
 - [ ] local variable declarations
 - [ ] main function

@@ -15,24 +15,37 @@
 
 using TokType = Token::Type;
 
-Parser::Parser(std::string_view sourceCode)
-	: sourceCode(sourceCode), scanner(sourceCode),
+Parser::Parser(std::string_view sourceCode, std::string fileName)
+	: fileName(fileName), sourceCode(sourceCode), scanner(sourceCode),
 	  prev(Token::Type::Eof, 0, 0 ,0),
 	  current(Token::Type::Eof, 0, 0 ,0)
 {}
 
 void Parser::parse()
 {
-	next();
-	auto exp = parseExpression();
 	PrintAST p;
-	p.visit(*exp);
+
+	next();
+	while (not scanner.isEmpty())
+	{
+		try
+		{
+			auto s = parseStatement();
+			p.visit(*s);
+		}
+		catch (SyntaxError& e)
+		{
+			// print the error message and quit parsing
+			e.print(std::cout, sourceCode);
+			break;
+		}
+	}
 }
 
-void Parser::error(std::string_view msg)
+void Parser::error(const std::string& msg, Token badToken)
 {
-	std::cerr << msg << std::endl;
-	assert(false);
+	auto newMsg = std::string("syntax error: ") + msg;
+	throw SyntaxError(badToken, fileName, newMsg);
 }
 
 std::string Parser::getTokenText(Token token)
@@ -47,12 +60,45 @@ Token Parser::next()
 	return current;
 }
 
-void Parser::consume(Token::Type type, std::string_view errmsg)
+void Parser::consume(Token::Type type, const std::string& errmsg)
 {
 	if (current.type == type)
 		next();
 	else
-		error(errmsg);
+		error(errmsg, current);
+}
+
+std::unique_ptr<State> Parser::parseStatement()
+{
+	switch (current.type)
+	{
+	case TokType::Int:
+		return declaration();
+	default:
+		auto expr = parseExpression();
+		consume(TokType::Semi, "exptected semicolon");
+		return expr;
+	}
+}
+
+std::unique_ptr<Ident> Parser::parseIdent()
+{
+	if (TokType::Indent != current.type)
+		error("expected proper identifier", current);
+	auto ident = getTokenText(current);
+	return std::make_unique<Ident>(ident, current);
+}
+
+std::unique_ptr<Decl> Parser::declaration()
+{
+	next();
+	auto startToken = current;
+	auto ident = parseIdent();
+	next();
+	consume(TokType::Equal, "expected =");
+	auto right = parseExpression();
+	consume(TokType::Semi, "expected semicolon");
+	return std::make_unique<Decl>(std::move(ident), std::move(right), startToken);
 }
 
 Parser::Rule Parser::getRule(Token::Type type) const
@@ -70,7 +116,7 @@ std::unique_ptr<Expr> Parser::parsePrecedence(Precedence precedence)
 	next();
 	auto rule = getRule(prev.type);
 	if (!rule.prefix)
-		error("expected expression");
+		error("expected expression", prev);
 
 	auto left = std::invoke(rule.prefix, this);
 
@@ -79,7 +125,7 @@ std::unique_ptr<Expr> Parser::parsePrecedence(Precedence precedence)
 		next();
 		auto infix = getRule(prev.type).infix;
 		if (!infix)
-			error("exptected infix operator");
+			error("exptected binary operator", prev);
 
 		left = std::invoke(infix, this, std::move(left));
 	}
@@ -87,7 +133,7 @@ std::unique_ptr<Expr> Parser::parsePrecedence(Precedence precedence)
 	return left;
 }
 
-std::unique_ptr<Expr> Parser::primary()
+std::unique_ptr<Expr> Parser::number()
 {
 	int result{};
 	auto text = sourceCode.substr(prev.pos, prev.size);
@@ -98,7 +144,20 @@ std::unique_ptr<Expr> Parser::primary()
 	if (std::errc::result_out_of_range ==  ec)
 		throw std::runtime_error("number is out of range");
 
-	return std::make_unique<NumLit>(result);
+	return std::make_unique<NumLit>(result, prev);
+}
+
+std::unique_ptr<Expr> Parser::identifier()
+{
+	auto name = sourceCode.substr(prev.pos, prev.size);
+	return std::make_unique<Ident>(std::string(name), current);
+}
+
+std::unique_ptr<Expr> Parser::grouping()
+{
+	auto expr = parseExpression();
+	consume(TokType::CloseParen, "unbalanced parentheses");
+	return expr;
 }
 
 std::unique_ptr<Expr> Parser::binary(std::unique_ptr<Expr> left)
@@ -126,8 +185,8 @@ std::unique_ptr<Expr> Parser::binary(std::unique_ptr<Expr> left)
 		opType = OpType::Mul;
 		break;
 	default:
-		assert(((void)"not an infix operator", false));
+		assert(((void)"not a binary operator", false));
 	}
 
-	return std::make_unique<BinExp>(opType, std::move(left), std::move(right));
+	return std::make_unique<BinExp>(opType,std::move(left), std::move(right), op);
 }

@@ -41,5 +41,5 @@ private:
 
 	void enterLevel();
 	void leaveLevel();
-	std::string identString() const;
+	std::string indentString() const;
 };

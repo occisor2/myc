@@ -13,12 +13,12 @@ void PrintAST::visit(Expr& node)
 
 void PrintAST::visit(NumLit& node)
 {
-	std::cout << identString() << "Int Literal: " << node.numLit << std::endl;
+	std::cout << indentString() << "Int Literal: " << node.numLit << std::endl;
 }
 
 void PrintAST::visit(BinExp& node)
 {
-	std::cout << identString() << "Binary Expression: ";
+	std::cout << indentString() << "Binary Expression: ";
 
 	switch (node.opType)
 	{
@@ -54,12 +54,12 @@ void PrintAST::visit(State& node)
 
 void PrintAST::visit(Ident& node)
 {
-	std::cout << identString() << "Identifier: " << node.name << std::endl;
+	std::cout << indentString() << "Identifier: " << node.name << std::endl;
 }
 
 void PrintAST::visit(Decl& node)
 {
-	std::cout << identString() << "Var Declaration:" << std::endl;
+	std::cout << indentString() << "Var Declaration:" << std::endl;
 
 	enterLevel();
 	node.ident->accept(*this);
@@ -80,7 +80,7 @@ void PrintAST::leaveLevel()
 	depth -= indent;
 }
 
-std::string PrintAST::identString() const
+std::string PrintAST::indentString() const
 {
 	return std::string(depth, ' ');
 }

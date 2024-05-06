@@ -1,6 +1,7 @@
 #pragma once
 
 #include "analysis.h"
+#include "token.h"
 #include <memory>
 #include <string>
 
@@ -10,7 +11,11 @@ class NodeVisitor;
 class NodeBase
 {
 public:
+	NodeBase(Token token);
+	~NodeBase() {}
 	virtual void accept(NodeVisitor& visitor) = 0;
+
+	Token token;
 };
 
 class State : public NodeBase
@@ -23,7 +28,7 @@ public:
 	};
 
 	State() = delete;
-	State(StateType stateType);
+	State(StateType stateType, Token token);
 	virtual ~State() {}
 
 	void accept(NodeVisitor& visitor) override;
@@ -42,7 +47,7 @@ public:
 	};
 
 	Expr() = delete;
-	Expr(ExpType expType);
+	Expr(ExpType expType, Token token);
 	virtual ~Expr() {}
 
 	void accept(NodeVisitor& visitor) override;
@@ -54,7 +59,7 @@ class Ident : public Expr
 {
 public:
 	Ident() = delete;
-	Ident(std::string name);
+	Ident(std::string name, Token token);
 
 	void accept(NodeVisitor& visitor) override;
 
@@ -65,7 +70,7 @@ class Decl : public State
 {
 public:
 	Decl() = delete;
-	Decl(std::unique_ptr<Ident> ident, std::unique_ptr<Expr> right);
+	Decl(std::unique_ptr<Ident> ident, std::unique_ptr<Expr> right, Token token);
 
 	void accept(NodeVisitor& visitor) override;
 
@@ -77,7 +82,7 @@ class NumLit : public Expr
 {
 public:
 	NumLit() = delete;
-	NumLit(int numLit);
+	NumLit(int numLit, Token token);
 
 	void accept(NodeVisitor& visitor);
 
@@ -96,7 +101,8 @@ public:
 	};
 
 	BinExp() = delete;
-	BinExp(OpType opType, std::unique_ptr<Expr> left, std::unique_ptr<Expr> right);
+	BinExp(OpType opType, std::unique_ptr<Expr> left,
+		   std::unique_ptr<Expr> right, Token token);
 
 	void accept(NodeVisitor& visitor);
 
