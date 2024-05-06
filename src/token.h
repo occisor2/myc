@@ -23,7 +23,8 @@ public:
 		Indent,
 		Error,
 		// keywords
-		Int
+		Int,
+		Return
 	};
 
 	const Type type;

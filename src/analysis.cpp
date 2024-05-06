@@ -72,7 +72,7 @@ void PrintAST::visit(Decl& node)
 
 void PrintAST::visit(Compound& node)
 {
-	std::cout << indentString() << "Compund Statement" << std::endl;
+	std::cout << indentString() << "Compound Statement" << std::endl;
 
 	for (auto& s : node.statements)
 	{
@@ -89,6 +89,15 @@ void PrintAST::visit(FuncDecl& node)
 
 	enterLevel();
 	node.body->accept(*this);
+	leaveLevel();
+}
+
+void PrintAST::visit(ReturnState& node)
+{
+	std::cout << indentString() << "Return" << std::endl;
+
+	enterLevel();
+	node.value->accept(*this);
 	leaveLevel();
 }
 

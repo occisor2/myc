@@ -30,7 +30,7 @@ Token Scanner::scan()
 	case ';': return getToken(TokType::Semi);
 	case '=': return getToken(TokType::Equal);
 	case '{': return getToken(TokType::OpenBrace);
-	case '}': return getToken(TokType::OpenBrace);
+	case '}': return getToken(TokType::CloseBrace);
 	}
 
 	if (isAlpha(c)) return scanIdent();

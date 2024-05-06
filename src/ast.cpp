@@ -2,6 +2,7 @@
 #include "token.h"
 #include <cassert>
 #include <string>
+#include <utility>
 
 NodeBase::NodeBase(Token token)
 	: token(token)
@@ -24,7 +25,19 @@ void State::accept(NodeVisitor& visitor)
 	case StateType::Decl:
 		static_cast<Decl*>(this)->accept(visitor);
 		break;
+	case StateType::Return:
+		static_cast<ReturnState*>(this)->accept(visitor);
+		break;
 	}
+}
+
+ReturnState::ReturnState(std::unique_ptr<Expr> value, Token token)
+	: State(StateType::Return, token), value(std::move(value))
+{}
+
+void ReturnState::accept(NodeVisitor& visitor)
+{
+	visitor.visit(*this);
 }
 
 Ident::Ident(std::string name, Token token)

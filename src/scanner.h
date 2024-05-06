@@ -32,6 +32,7 @@ private:
 
 	// will be replaced by a trie eventually
 	const std::unordered_map<std::string, Token::Type> keywords = {
-		{"int", Token::Type::Int}
+		{"int", Token::Type::Int},
+		{"return", Token::Type::Return}
 	};
 };

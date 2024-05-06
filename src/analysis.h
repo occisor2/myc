@@ -3,6 +3,7 @@
 #include "ast.h"
 #include <string>
 
+class ReturnState;
 class Expr;
 class NumLit;
 class BinExp;
@@ -25,6 +26,7 @@ public:
 	virtual void visit(Decl& node) = 0;
 	virtual void visit(Compound& node) = 0;
 	virtual void visit(FuncDecl& node) = 0;
+	virtual void visit(ReturnState& node) = 0;
 };
 
 class PrintAST : public NodeVisitor
@@ -40,6 +42,7 @@ public:
 	void visit(Decl& node) override;
 	void visit(Compound& node) override;
 	void visit(FuncDecl& node) override;
+	void visit(ReturnState& node) override;
 
 private:
 	const int indent = 2;

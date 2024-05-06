@@ -27,6 +27,7 @@ public:
 		Compound,
 		Expr,
 		Decl,
+		Return,
 	};
 
 	State() = delete;
@@ -55,6 +56,17 @@ public:
 	void accept(NodeVisitor& visitor) override;
 
 	ExpType expType;
+};
+
+class ReturnState : public State
+{
+public:
+	ReturnState() = delete;
+	ReturnState(std::unique_ptr<Expr> value, Token token);
+
+	void accept(NodeVisitor& visitor) override;
+
+	std::unique_ptr<Expr> value;
 };
 
 class Ident : public Expr
@@ -124,11 +136,12 @@ public:
 	std::vector<std::unique_ptr<State>> statements;
 };
 
-class FuncDecl : NodeBase
+class FuncDecl : public NodeBase
 {
 public:
 	FuncDecl() = delete;
 	FuncDecl(std::unique_ptr<Ident> name, std::unique_ptr<Compound> body, Token token);
+	virtual ~FuncDecl() {}
 
 	void accept(NodeVisitor& visitor) override;
 

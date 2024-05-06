@@ -35,7 +35,10 @@ private:
 	Token next();
 	void consume(Token::Type type, const std::string& errmsg);
 
+	std::unique_ptr<FuncDecl> parseFunction();
+	std::unique_ptr<Compound> parseCompound();
 	std::unique_ptr<State> parseStatement();
+	std::unique_ptr<State> parseReturn();
 	std::unique_ptr<Ident> parseIdent();
 	std::unique_ptr<Decl> declaration();
 
@@ -91,6 +94,7 @@ private:
 		{&Parser::identifier,nullptr,      Precedence::Primary}, // ident
 		{nullptr,         nullptr,         Precedence::None},    // error
 		{nullptr,         nullptr,         Precedence::None},    // int
+		{nullptr,         nullptr,         Precedence::None},    // return
 	};
 
 	Rule getRule(Token::Type type) const;

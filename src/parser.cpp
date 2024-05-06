@@ -12,6 +12,8 @@
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <utility>
+#include <vector>
 
 using TokType = Token::Type;
 
@@ -24,21 +26,16 @@ Parser::Parser(std::string_view sourceCode, std::string fileName)
 void Parser::parse()
 {
 	PrintAST p;
-
 	next();
-	while (not scanner.isEmpty())
+	try
 	{
-		try
-		{
-			auto s = parseStatement();
-			p.visit(*s);
-		}
-		catch (SyntaxError& e)
-		{
-			// print the error message and quit parsing
-			e.print(std::cout, sourceCode);
-			break;
-		}
+		auto func = parseFunction();
+		p.visit(*func);
+	}
+	catch (SyntaxError& e)
+	{
+		// print the error message and quit parsing
+		e.print(std::cout, sourceCode);
 	}
 }
 
@@ -68,17 +65,60 @@ void Parser::consume(Token::Type type, const std::string& errmsg)
 		error(errmsg, current);
 }
 
+std::unique_ptr<FuncDecl> Parser::parseFunction()
+{
+	consume(TokType::Int, "expected function return type");
+
+	auto nameToken = current;
+	auto name = parseIdent();
+	next();
+
+	consume(TokType::OpenParen, "expected opening parenthesis");
+	consume(TokType::CloseParen, "expected opening parenthesis");
+
+	auto body = parseCompound();
+
+	return std::make_unique<FuncDecl>(std::move(name), std::move(body), nameToken);
+}
+
+std::unique_ptr<Compound> Parser::parseCompound()
+{
+	auto startToken = current;
+	consume(TokType::OpenBrace, "exptected opening brace");
+
+	std::vector<std::unique_ptr<State>> block;
+	while (TokType::CloseBrace != current.type)
+		block.push_back(parseStatement());
+
+	consume(TokType::CloseBrace, "unbalanced braces");
+
+	return std::make_unique<Compound>(std::move(block), startToken);
+}
+
 std::unique_ptr<State> Parser::parseStatement()
 {
 	switch (current.type)
 	{
 	case TokType::Int:
 		return declaration();
+	case TokType::Return:
+		return parseReturn();
+	case TokType::OpenBrace:
+		return parseCompound();
 	default:
 		auto expr = parseExpression();
 		consume(TokType::Semi, "exptected semicolon");
 		return expr;
 	}
+}
+
+std::unique_ptr<State> Parser::parseReturn()
+{
+	auto returnTok = current;
+	next();
+	auto value = parseExpression();
+	consume(TokType::Semi, "expected semicolon");
+	return std::make_unique<ReturnState>(std::move(value), returnTok);
 }
 
 std::unique_ptr<Ident> Parser::parseIdent()
