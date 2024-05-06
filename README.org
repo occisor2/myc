@@ -19,7 +19,7 @@ Hopefully, I can find enough time to expand on this.
 
 * Building
 
-CMake is used to build the project. The default presets uses ninja.
+CMake is used to build the project. The default presets use Ninja.
 
 #+BEGIN_SRC shell
 mkdir build && cd build
@@ -30,7 +30,22 @@ cmake .. --build --preset release
 
 Here are the current short term goals and which have been completed.
 
-- [X] basic expression parsing
-- [X] basic statements
-- [ ] local variable declarations
-- [ ] main function
+- [-] Parser
+  - [X] basic expressions
+  - [X] local variable declarations
+  - [X] compound statements
+  - [ ] non-int types
+  - [-] function signatures
+    - [X] basic identification
+    - [ ] parameters
+    - [ ] non-int return types
+    - [X] return values
+- [-] AST Passes
+  - [X] print the AST
+  - [ ] create the symbol table
+  - [ ] type checking
+  - [ ] statement context checking (e.g. valid returns)
+- [ ] Optimizer
+  - [ ] constant folding
+- [ ] Code Generation
+  
