@@ -4,4 +4,5 @@ target_sources(myc PUBLIC
   scanner.cpp
   ast.cpp
   parser.cpp
-  analysis.cpp)
+  analysis.cpp
+  diagnostic.cpp)
