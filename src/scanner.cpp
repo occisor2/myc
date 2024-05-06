@@ -99,7 +99,7 @@ Token Scanner::scanIdent()
 	while (not isEmpty() && (isAlpha(peek()) || isDigit(peek())))
 		next();
 
-	auto text = std::string(sourceCode.substr(start, current));
+	auto text = std::string(sourceCode.substr(start, current - start));
 	if (keywords.contains(text))
 		return getToken(keywords.at(text));
 

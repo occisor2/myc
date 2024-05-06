@@ -31,7 +31,7 @@ private:
 	bool isDigit(char c) const;
 
 	// will be replaced by a trie eventually
-	std::unordered_map<std::string, Token::Type> keywords = {
+	const std::unordered_map<std::string, Token::Type> keywords = {
 		{"int", Token::Type::Int}
 	};
 };
