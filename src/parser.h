@@ -79,22 +79,22 @@ private:
 	};
 
 	static constexpr Rule table[] = {
-		{nullptr,          nullptr,         Precedence::None},    // eof
-		{&Parser::number,  nullptr,         Precedence::Primary}, // num
-		{nullptr,          &Parser::binary, Precedence::Term},    // sub
-		{nullptr,          &Parser::binary, Precedence::Term},    // add
-		{nullptr,          &Parser::binary, Precedence::Factor},  // div
-		{nullptr,          &Parser::binary, Precedence::Factor},  // mul
-		{&Parser::grouping,nullptr,         Precedence::None},    // (
-		{nullptr,          nullptr,         Precedence::None},    // )
-		{nullptr,          nullptr,         Precedence::None},    // ;
-		{nullptr,          nullptr,         Precedence::None},    // =
-		{nullptr,         nullptr,         Precedence::None},    // {
-		{nullptr ,        nullptr,         Precedence::None},    // }
-		{&Parser::identifier,nullptr,      Precedence::Primary}, // ident
-		{nullptr,         nullptr,         Precedence::None},    // error
-		{nullptr,         nullptr,         Precedence::None},    // int
-		{nullptr,         nullptr,         Precedence::None},    // return
+		{nullptr,              nullptr,         Precedence::None},    // eof
+		{&Parser::number,      nullptr,         Precedence::Primary}, // num
+		{nullptr,              &Parser::binary, Precedence::Term},    // sub
+		{nullptr,              &Parser::binary, Precedence::Term},    // add
+		{nullptr,              &Parser::binary, Precedence::Factor},  // div
+		{nullptr,              &Parser::binary, Precedence::Factor},  // mul
+		{&Parser::grouping,    nullptr,         Precedence::None},    // (
+		{nullptr,              nullptr,         Precedence::None},    // )
+		{nullptr,              nullptr,         Precedence::None},    // ;
+		{nullptr,              nullptr,         Precedence::None},    // =
+		{nullptr,             nullptr,         Precedence::None},    // {
+		{nullptr ,            nullptr,         Precedence::None},    // }
+		{&Parser::identifier, nullptr,         Precedence::Primary}, // ident
+		{nullptr,             nullptr,         Precedence::None},    // error
+		{nullptr,             nullptr,         Precedence::None},    // int
+		{nullptr,             nullptr,         Precedence::None},    // return
 	};
 
 	Rule getRule(Token::Type type) const;
