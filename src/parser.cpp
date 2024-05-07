@@ -1,5 +1,5 @@
 #include "parser.h"
-#include "analysis.h"
+#include "analysis/printast.h"
 #include "ast.h"
 #include "token.h"
 #include <cassert>
@@ -118,7 +118,7 @@ std::unique_ptr<State> Parser::parseReturn()
 	next();
 	auto value = parseExpression();
 	consume(TokType::Semi, "expected semicolon");
-	return std::make_unique<ReturnState>(std::move(value), returnTok);
+	return std::make_unique<Return>(std::move(value), returnTok);
 }
 
 std::unique_ptr<Ident> Parser::parseIdent()

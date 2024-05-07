@@ -1,4 +1,4 @@
-#include "analysis.h"
+#include "printast.h"
 #include <iostream>
 #include <ostream>
 
@@ -92,7 +92,7 @@ void PrintAST::visit(FuncDecl& node)
 	leaveLevel();
 }
 
-void PrintAST::visit(ReturnState& node)
+void PrintAST::visit(Return& node)
 {
 	std::cout << indentString() << "Return" << std::endl;
 

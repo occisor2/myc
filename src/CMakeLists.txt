@@ -4,5 +4,6 @@ target_sources(myc PUBLIC
   scanner.cpp
   ast.cpp
   parser.cpp
-  analysis.cpp
   diagnostic.cpp)
+
+add_subdirectory(analysis)
