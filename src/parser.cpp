@@ -100,7 +100,7 @@ std::unique_ptr<State> Parser::parseStatement()
 	switch (current.type)
 	{
 	case TokType::Int:
-		return declaration();
+		return parseDecl();
 	case TokType::Return:
 		return parseReturn();
 	case TokType::OpenBrace:
@@ -129,7 +129,7 @@ std::unique_ptr<Ident> Parser::parseIdent()
 	return std::make_unique<Ident>(ident, current);
 }
 
-std::unique_ptr<Decl> Parser::declaration()
+std::unique_ptr<Decl> Parser::parseDecl()
 {
 	next();
 	auto startToken = current;

@@ -39,8 +39,12 @@ private:
 	std::unique_ptr<Compound> parseCompound();
 	std::unique_ptr<State> parseStatement();
 	std::unique_ptr<State> parseReturn();
+	/**
+	 * Different from identifier(). This method is for parsing identifiers
+	 * anywhere except inside expressions.
+	 */
 	std::unique_ptr<Ident> parseIdent();
-	std::unique_ptr<Decl> declaration();
+	std::unique_ptr<Decl> parseDecl();
 
 	/*
 	 * All methods and data below mostly belong to the Pratt Parser
