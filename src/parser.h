@@ -20,7 +20,7 @@ public:
 	Parser() = delete;
 	Parser(std::string_view sourceCode, std::string fileName);
 
-	void parse();
+	std::unique_ptr<FuncDecl> parse();
 	
 private:
 	std::string fileName;

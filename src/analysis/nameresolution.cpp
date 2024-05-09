@@ -1,17 +1,24 @@
 #include "nameresolution.h"
+#include "diagnostic.h"
 #include <format>
+#include <iostream>
 
-NameResolution::NameResolution(std::string fileName)
-	: fileName(fileName)
+NameResolution::NameResolution(std::string fileName, std::string_view sourceCode)
+	: fileName(fileName), sourceCode(sourceCode)
 {}
 
 void NameResolution::visit(Compound& node)
 {
-	SymTable newScope;
+	// uses the stack to handle scoping
+	auto oldScope = currentScope;
+	SymTable newScope(currentScope);
 	currentScope = &newScope;
 
 	for (auto& statement : node.statements)
 		statement->accept(*this);
+
+	// restore old scope on function exit
+	currentScope = oldScope;
 }
 
 void NameResolution::visit(Ident& node)
@@ -40,6 +47,10 @@ void NameResolution::visit(Decl& node)
 {
 	if (currentScope->lookup(node.ident->name))
 		error(node.token, std::format("identifier '{}' has already been declared", node.ident->name));
+	else
+		currentScope->insert(Symbol(node.ident->name));
+
+	node.right->accept(*this);
 }
 
 void NameResolution::visit(FuncDecl& node)
@@ -59,5 +70,6 @@ void NameResolution::visit([[maybe_unused]] NumLit& node)
 
 void NameResolution::error(Token badToken, std::string msg)
 {
-	throw NameError(badToken, fileName, msg);
+	Diagnostic d(Diagnostic::Type::Error, badToken, fileName, msg);
+	d.print(std::cout, sourceCode);
 }

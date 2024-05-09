@@ -1,20 +1,12 @@
 #pragma once
 
-#include "diagnostic.h"
 #include "symtable.h"
 #include "visitor.h"
-
-class NameError : public Diagnostic
-{
-public:
-	NameError(Token badToken, std::string fileName, std::string msg)
-		: Diagnostic(Diagnostic::Type::Error, badToken, fileName, msg) {}
-};
 
 class NameResolution : public Visitor
 {
 public:
-	NameResolution(std::string fileName);
+	NameResolution(std::string fileName, std::string_view sourceCode);
 
 	void visit(Expr& node) override;
 	void visit(NumLit& node) override;
@@ -28,6 +20,8 @@ public:
 
 private:
 	std::string fileName;
+	std::string_view sourceCode;
+	bool hasErrors = false;
 	SymTable* currentScope = nullptr;
 
 	void error(Token badToken, std::string msg);

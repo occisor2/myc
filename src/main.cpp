@@ -1,3 +1,5 @@
+#include "analysis/nameresolution.h"
+#include "analysis/printast.h"
 #include "parser.h"
 #include "scanner.h"
 #include "token.h"
@@ -72,9 +74,16 @@ int main(int argc, char* argv[])
 	}
 	if (dumpAST)
 	{
-		std::cout << "AST:" << std::endl;
 		Parser p(sourceCode, filePath);
-		p.parse();
+		auto func = p.parse();
+		if (not func)
+			return EXIT_FAILURE;
+
+		NameResolution res(filePath, sourceCode);
+		res.visit(*func);
+
+		PrintAST print;
+		print.visit(*func);
 	}
 
 	return EXIT_SUCCESS;

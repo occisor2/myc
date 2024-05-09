@@ -23,20 +23,20 @@ Parser::Parser(std::string_view sourceCode, std::string fileName)
 	  current(Token::Type::Eof, 0, 0 ,0)
 {}
 
-void Parser::parse()
+std::unique_ptr<FuncDecl> Parser::parse()
 {
-	PrintAST p;
 	next();
 	try
 	{
-		auto func = parseFunction();
-		p.visit(*func);
+		return parseFunction();
 	}
 	catch (SyntaxError& e)
 	{
 		// print the error message and quit parsing
 		e.print(std::cout, sourceCode);
 	}
+
+	return nullptr;
 }
 
 void Parser::error(const std::string& msg, Token badToken)
